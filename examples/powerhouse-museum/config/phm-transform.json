@@ -1,0 +1,563 @@
+[
+  {
+    "op": "core/row-removal",
+    "description": "Remove rows",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "selectNumeric": false,
+          "expression": "value",
+          "selectBlank": true,
+          "selectError": true,
+          "selectNonNumeric": true,
+          "name": "Record ID",
+          "from": 0,
+          "to": 510000,
+          "type": "range",
+          "columnName": "Record ID"
+        }
+      ]
+    }
+  },
+  {
+    "op": "core/row-reorder",
+    "description": "Reorder rows",
+    "mode": "record-based",
+    "sorting": {
+      "criteria": [
+        {
+          "errorPosition": 1,
+          "valueType": "number",
+          "column": "Record ID",
+          "blankPosition": 2,
+          "reverse": false
+        }
+      ]
+    }
+  },
+  {
+    "op": "core/blank-down",
+    "description": "Blank down cells in column Record ID",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": []
+    },
+    "columnName": "Record ID"
+  },
+  {
+    "op": "core/row-removal",
+    "description": "Remove rows",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "omitError": false,
+          "expression": "isBlank(value)",
+          "selectBlank": false,
+          "invert": false,
+          "selectError": false,
+          "selection": [
+            {
+              "v": {
+                "v": true,
+                "l": "true"
+              }
+            }
+          ],
+          "name": "Record ID",
+          "omitBlank": false,
+          "type": "list",
+          "columnName": "Record ID"
+        }
+      ]
+    }
+  },
+  {
+    "op": "core/multivalued-cell-split",
+    "description": "Split multi-valued cells in column Categories",
+    "columnName": "Categories",
+    "keyColumnName": "Record ID",
+    "separator": "|",
+    "mode": "plain"
+  },
+  {
+    "op": "core/row-removal",
+    "description": "Remove rows",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "omitError": false,
+          "expression": "isBlank(value)",
+          "selectBlank": false,
+          "invert": false,
+          "selectError": false,
+          "selection": [
+            {
+              "v": {
+                "v": true,
+                "l": "true"
+              }
+            }
+          ],
+          "name": "Categories",
+          "omitBlank": false,
+          "type": "list",
+          "columnName": "Categories"
+        }
+      ]
+    }
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Categories",
+    "engineConfig": {
+      "mode": "record-based",
+      "facets": []
+    },
+    "columnName": "Categories",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Audio and Visual Equipment",
+          "Audio and visual equipment"
+        ],
+        "to": "Audio and Visual Equipment"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Photographic Equipment",
+          "Photographic equipment"
+        ],
+        "to": "Photographic Equipment"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Food and Drink",
+          "food and drink"
+        ],
+        "to": "Food and Drink"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Office Equipment",
+          "Office equipment"
+        ],
+        "to": "Office Equipment"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Documents",
+          "documents"
+        ],
+        "to": "Documents"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Musical Instruments",
+          "Musical instruments"
+        ],
+        "to": "Musical Instruments"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Material technology",
+          "Material Technology"
+        ],
+        "to": "Material technology"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Medicines",
+          "medicines"
+        ],
+        "to": "Medicines"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Agricultural Equipment",
+          "Agricultural equipment"
+        ],
+        "to": "Agricultural Equipment"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Personal Effects",
+          "Personal effects"
+        ],
+        "to": "Personal Effects"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Toiletries",
+          "toiletries"
+        ],
+        "to": "Toiletries"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Pictorials",
+          "pictorials"
+        ],
+        "to": "Pictorials"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Postal Equipment",
+          "Postal equipment"
+        ],
+        "to": "Postal Equipment"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Health and Medical Equipment",
+          "Health and medical equipment"
+        ],
+        "to": "Health and Medical Equipment"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Glass Forms",
+          "Glass forms"
+        ],
+        "to": "Glass Forms"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Botanical specimens",
+          "Botanical Specimens"
+        ],
+        "to": "Botanical specimens"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Archaeology-Ancient",
+          "Archaeology-ancient"
+        ],
+        "to": "Archaeology-Ancient"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Numismatics",
+          "numismatics"
+        ],
+        "to": "Numismatics"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Plastics Technology",
+          "Plastics technology"
+        ],
+        "to": "Plastics Technology"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Transport-Land",
+          "Transport-land"
+        ],
+        "to": "Transport-Land"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Clothing and Dress",
+          "Clothing and dress"
+        ],
+        "to": "Clothing and Dress"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Measuring Instruments",
+          "Measuring instruments"
+        ],
+        "to": "Measuring Instruments"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Chemical Samples",
+          "Chemical samples"
+        ],
+        "to": "Chemical Samples"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Electronics Packaging",
+          "Electronics packaging"
+        ],
+        "to": "Electronics Packaging"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Didactic Displays",
+          "Didactic displays"
+        ],
+        "to": "Didactic Displays"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Scientific Instruments",
+          "Scientific instruments"
+        ],
+        "to": "Scientific Instruments"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Ceremonial Objects",
+          "Ceremonial objects"
+        ],
+        "to": "Ceremonial Objects"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Categories",
+    "engineConfig": {
+      "mode": "record-based",
+      "facets": []
+    },
+    "columnName": "Categories",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Band saws",
+          "Bandsaws"
+        ],
+        "to": "Band saws"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Mailbags",
+          "Mail bags"
+        ],
+        "to": "Mailbags"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Bookmarks",
+          "book marks"
+        ],
+        "to": "Bookmarks"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Bonbon dishes",
+          "Bon bon dishes"
+        ],
+        "to": "Bonbon dishes"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Bedsheets",
+          "Bed sheets"
+        ],
+        "to": "Bedsheets"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Skullcaps",
+          "Skull caps"
+        ],
+        "to": "Skullcaps"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Air bricks",
+          "Airbricks"
+        ],
+        "to": "Air bricks"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Transport-Water",
+          "Transport - Water"
+        ],
+        "to": "Transport-Water"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Doorknobs",
+          "Door knobs"
+        ],
+        "to": "Doorknobs"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Transport-Air",
+          "Transport - Air"
+        ],
+        "to": "Transport-Air"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Swatch books",
+          "Swatchbooks"
+        ],
+        "to": "Swatch books"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Categories",
+    "engineConfig": {
+      "mode": "record-based",
+      "facets": []
+    },
+    "columnName": "Categories",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Costumes",
+          "Costume"
+        ],
+        "to": "Costumes"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Textile designs",
+          "Textile design"
+        ],
+        "to": "Textile designs"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Bed fittings",
+          "Bed fitting"
+        ],
+        "to": "Bed fittings"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Paintings",
+          "Painting"
+        ],
+        "to": "Paintings"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Schilling coins",
+          "Shilling coins"
+        ],
+        "to": "Schilling coins"
+      }
+    ]
+  },
+  {
+    "op": "core/multivalued-cell-join",
+    "description": "Join multi-valued cells in column Categories",
+    "columnName": "Categories",
+    "keyColumnName": "Record ID",
+    "separator": ", "
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column Categories using expression grel:value.split(\", \").uniques().join(\", \")",
+    "engineConfig": {
+      "mode": "record-based",
+      "facets": []
+    },
+    "columnName": "Categories",
+    "expression": "grel:value.split(\", \").uniques().join(\", \")",
+    "onError": "set-to-blank",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/multivalued-cell-split",
+    "description": "Split multi-valued cells in column Categories",
+    "columnName": "Categories",
+    "keyColumnName": "Record ID",
+    "separator": ",",
+    "mode": "plain"
+  }
+]
