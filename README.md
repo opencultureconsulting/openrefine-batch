@@ -1,6 +1,7 @@
 ## OpenRefine batch processing (openrefine-batch.sh)
 
 Shell script to run OpenRefine on Windows, Linux or Mac in batch mode (import, transform, export). This bash script automatically...
+
 1. imports all data from a given directory into OpenRefine
 2. transforms the data by applying OpenRefine transformation rules from all json files in another given directory and
 3. finally exports the data in TSV (tab-separated values) format.
@@ -17,7 +18,7 @@ It orchestrates a [docker container for OpenRefine](https://hub.docker.com/r/fel
 Linux:
 
 1. Install [Docker](https://docs.docker.com/engine/installation/#on-linux)
-2. Open Terminal and enter `wget https://.../openrefine-batch.sh && chmod +x ./openrefine-batch.sh`
+2. Open Terminal and enter `wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch.sh && chmod +x openrefine-batch.sh`
 
 Mac:
 
@@ -37,6 +38,8 @@ Windows:
 ```
 
 #### Example
+
+clone or [download GitHub repository](https://github.com/felixlohmeier/openrefine-batch/archive/master.zip) to get example data
 
 ```
 ./openrefine-batch.sh examples/powerhouse-museum/input/ examples/powerhouse-museum/config/ examples/powerhouse-museum/output/ 4G tsv --processQuotes=false --guessCellValueTypes=true
