@@ -48,7 +48,7 @@ clone or [download GitHub repository](https://github.com/felixlohmeier/openrefin
 #### Options
 
 ```
-./openrefine-batch.sh $inputdir $configdir $outputdir $crossdir $ram $version $inputformat $inputoptions
+./openrefine-batch.sh $inputdir $configdir $outputdir $crossdir $ram $version $restart $inputformat $inputoptions
 ```
 
 1. inputdir: path to directory with source files (multiple files may be imported into a single project [by providing a zip or tar.gz archive](https://github.com/OpenRefine/OpenRefine/wiki/Importers))
@@ -57,8 +57,9 @@ clone or [download GitHub repository](https://github.com/felixlohmeier/openrefin
 4. crossdir: path to directory with additional OpenRefine projects (will be copied to workspace before transformation step to support the [cross function](https://github.com/OpenRefine/OpenRefine/wiki/GREL-Other-Functions#crosscell-c-string-projectname-string-columnname))
 5. ram: maximum RAM for OpenRefine java heap space (default: 4G)
 6. version: OpenRefine version (2.7rc1, 2.6rc2, 2.6rc1, dev)
-7. inputformat: csv, tsv, xml, json, line-based, fixed-width, xlsx or ods
-8. inputoptions: several options provided by [openrefine-client](https://hub.docker.com/r/felixlohmeier/openrefine-client/)
+7. restart: restart docker container after each transformation to clear memory (restart-true/restart-false)
+8. inputformat: (csv, tsv, xml, json, line-based, fixed-width, xlsx, ods)
+9. inputoptions: several options provided by [openrefine-client](https://hub.docker.com/r/felixlohmeier/openrefine-client/)
 
 inputoptions (mandatory for xml, json, fixed-width, xslx, ods):
 * `--recordPath=RECORDPATH` (xml, json): please provide path in multiple arguments without slashes, e.g. /collection/record/ should be entered like this: `--recordPath=collection --recordPath=record`
@@ -85,7 +86,7 @@ more inputoptions (optional, only together with inputformat):
 The script uses `docker attach` to print log messages from OpenRefine server and `ps` to show statistics for each step. Here is a sample log:
 
 ```
-[03:27 felix ~/openrefine-batch (master *)]$ ./openrefine-batch.sh examples/powerhouse-museum/input/ examples/powerhouse-museum/config/ examples/powerhouse-museum/output/ examples/powerhouse-museum/cross/ 4G 2.7rc1 tsv --processQuotes=false --guessCellValueTypes=true
+[03:27 felix ~/openrefine-batch (master *)]$ ./openrefine-batch.sh examples/powerhouse-museum/input/ examples/powerhouse-museum/config/ examples/powerhouse-museum/output/ examples/powerhouse-museum/cross/ 4G 2.7rc1 restart-true tsv --processQuotes=false --guessCellValueTypes=true
 Input directory:        /home/felix/openrefine-batch/examples/powerhouse-museum/input
 Input files:            phm-collection.tsv
 Input format:           --format=tsv
@@ -96,6 +97,7 @@ Cross directory:        /home/felix/openrefine-batch/examples/powerhouse-museum/
 Cross projects:         
 OpenRefine heap space:  4G
 OpenRefine version:     2.7rc1
+Docker restart:         restart-true
 Docker container:       6b7eb36f-fc72-4040-b135-acee36948c13
 Output directory:       /home/felix/openrefine-batch/examples/powerhouse-museum/output
 

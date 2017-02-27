@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v0.3, 27.02.2017
+# openrefine-batch.sh, Felix Lohmeier, v0.4, 27.02.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # user input
@@ -49,15 +49,21 @@ if [ -z "$6" ]
 fi
 if [ -z "$7" ]
   then
-    inputformat=""
+    restart="restart-true"
   else
-    inputformat="--format=${7}"
+    restart="$7"
 fi
 if [ -z "$8" ]
   then
+    inputformat=""
+  else
+    inputformat="--format=${8}"
+fi
+if [ -z "$9" ]
+  then
     inputoptions=""
   else
-    inputoptions=( "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${19}" "${20}" )
+    inputoptions=( "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${19}" "${20}" )
 fi
 
 # variables
@@ -73,6 +79,7 @@ echo "Cross projects:         ${crossprojects[@]}"
 echo "OpenRefine heap space:  $ram"
 echo "OpenRefine version:     $version"
 echo "Docker container:       $uuid"
+echo "Docker restart:         $restart"
 echo "Output directory:       $outputdir"
 echo ""
 
@@ -127,12 +134,14 @@ if [ -n "$jsonfiles" ]; then
             sudo docker run --rm --link ${uuid} -v ${configdir}:/data felixlohmeier/openrefine-client -H ${uuid} -f ${jsonfile} ${projectid}
             # statistics
             ps -o start,etime,%mem,%cpu,rss -C java
-            # restart server to clear memory
-            echo "save project and restart OpenRefine server..." 
-            sudo docker stop -t=5000 ${uuid}
-            sudo docker rm ${uuid}
-            sudo docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-            until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+            if [ "$restart" = "restart-true" ]; then
+                # restart server to clear memory
+                echo "save project and restart OpenRefine server..." 
+                sudo docker stop -t=5000 ${uuid}
+                sudo docker rm ${uuid}
+                sudo docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+                until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+            fi
         done
         # export files
         echo "export to file ${projectid}.tsv..."
