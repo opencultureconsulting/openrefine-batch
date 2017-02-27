@@ -90,7 +90,7 @@ The script uses `docker attach` to print log messages from OpenRefine server and
 Input directory:        /home/felix/openrefine-batch/examples/powerhouse-museum/input
 Input files:            phm-collection.tsv
 Input format:           --format=tsv
-Input options:          --processQuotes=false --guessCellValueTypes=true            
+Input options:          --processQuotes=false --guessCellValueTypes=true
 Config directory:       /home/felix/openrefine-batch/examples/powerhouse-museum/config
 Transformation rules:   phm-transform.json
 Cross directory:        /home/felix/openrefine-batch/examples/powerhouse-museum/cross
