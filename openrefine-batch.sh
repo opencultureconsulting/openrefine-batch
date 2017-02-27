@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v0.2, 27.02.2017
+# openrefine-batch.sh, Felix Lohmeier, v0.3, 27.02.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # user input
@@ -9,7 +9,7 @@ if [ -z "$1" ]
     exit 2
   else
     inputdir=$(readlink -f $1)
-    inputfiles=($(find ${inputdir}/* -type f -printf "%f\n"))
+    inputfiles=($(find -L ${inputdir}/* -type f -printf "%f\n"))
 fi
 if [ -z "$2" ]
   then
@@ -17,14 +17,14 @@ if [ -z "$2" ]
     exit 2
   else
     configdir=$(readlink -f $2)
-    jsonfiles=($(find ${configdir}/* -type f -printf "%f\n"))
+    jsonfiles=($(find -L ${configdir}/* -type f -printf "%f\n"))
 fi
 if [ -z "$3" ]
   then
     echo 1>&2 "please provide path to output directory"
     exit 2
   else
-    outputdir=$(readlink -f $3)
+    outputdir=$(readlink -m $3)
     mkdir -p ${outputdir}
 fi
 if [ -z "$4" ]
@@ -33,7 +33,7 @@ if [ -z "$4" ]
     exit 2
   else
     crossdir=$(readlink -f $4)
-    crossprojects=($(find ${crossdir}/* -maxdepth 0 -type d -printf "%f\n"))
+    crossprojects=($(find -L ${crossdir}/* -maxdepth 0 -type d -printf "%f\n"))
 fi
 if [ -z "$5" ]
   then
@@ -43,19 +43,24 @@ if [ -z "$5" ]
 fi
 if [ -z "$6" ]
   then
-    inputformat=""
+    version="2.7rc1"
   else
-    inputformat="--format=${6}"
+    version="$6"
 fi
 if [ -z "$7" ]
   then
+    inputformat=""
+  else
+    inputformat="--format=${7}"
+fi
+if [ -z "$8" ]
+  then
     inputoptions=""
   else
-    inputoptions=( "$7" "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${19}" "${20}" )
+    inputoptions=( "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${19}" "${20}" )
 fi
 
 # variables
-version="2.7rc1"
 uuid=$(cat /proc/sys/kernel/random/uuid)
 echo "Input directory:        $inputdir"
 echo "Input files:            ${inputfiles[@]}"
