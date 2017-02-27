@@ -1,6 +1,6 @@
 #!/bin/bash
 # openrefine-batch.sh, Felix Lohmeier, v0.1, 27.02.2017
-# https://github.com/...
+# https://github.com/felixlohmeier/openrefine-batch
 
 # user input
 if [ -z "$1" ]
