@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v0.6.1, 01.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v0.6.2, 01.03.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # user input
@@ -9,7 +9,7 @@ if [ -z "$1" ]
     exit 2
   else
     inputdir=$(readlink -f $1)
-    if [ ! -z "${inputdir// }" ] ; then
+    if [ -n "${inputdir// }" ] ; then
       inputfiles=($(find -L ${inputdir}/* -type f -printf "%f\n" 2>/dev/null))
     fi
 fi
@@ -19,7 +19,7 @@ if [ -z "$2" ]
     exit 2
   else
     configdir=$(readlink -f $2)
-    if [ ! -z "${configdir// }" ] ; then
+    if [ -n "${configdir// }" ] ; then
       jsonfiles=($(find -L ${configdir}/* -type f -printf "%f\n" 2>/dev/null))
     fi
 fi
@@ -37,7 +37,7 @@ if [ -z "$4" ]
     exit 2
   else
     crossdir=$(readlink -f $4)
-    if [ ! -z "${crossdir// }" ] ; then
+    if [ -n "${crossdir// }" ] ; then
       crossprojects=($(find -L ${crossdir}/* -maxdepth 0 -type d -printf "%f\n" 2>/dev/null))
     fi
 fi
@@ -118,8 +118,8 @@ echo ""
 
 # import all files
 if [ -n "$inputfiles" ]; then
-echo "=== IMPORT ==="
-echo ""
+  echo "=== IMPORT ==="
+  echo ""
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
         # run client with input command
@@ -140,21 +140,23 @@ echo ""
     done
 fi
 
-echo "=== TRANSFORM / EXPORT ==="
-echo ""
-
-# get project ids
-echo "get project ids..."
-projects=($(docker run --rm --link ${uuid} felixlohmeier/openrefine-client -H ${uuid} -l | tee ${outputdir}/projects.tmp | cut -c 2-14))
-cat ${outputdir}/projects.tmp && rm ${outputdir}/projects.tmp
-echo ""
-
-# provide additional OpenRefine projects for cross function
-if [ -n "$crossprojects" ]; then
-    echo "provide additional projects for cross function..."
-    # copy given projects to workspace
-    rsync -a --exclude='*.project/history' $crossdir/*.project $outputdir
-    # restart server to advertise copied projects
+# transform and export files
+if [ -n "$jsonfiles" ] || [ "$export" = "export-true" ]; then
+  echo "=== TRANSFORM / EXPORT ==="
+  echo ""
+  
+  # get project ids
+  echo "get project ids..."
+  projects=($(docker run --rm --link ${uuid} felixlohmeier/openrefine-client -H ${uuid} -l | tee ${outputdir}/projects.tmp | cut -c 2-14))
+  cat ${outputdir}/projects.tmp && rm ${outputdir}/projects.tmp
+  echo ""
+  
+  # provide additional OpenRefine projects for cross function
+  if [ -n "$crossprojects" ]; then
+      echo "provide additional projects for cross function..."
+      # copy given projects to workspace
+      rsync -a --exclude='*.project/history' $crossdir/*.project $outputdir
+      # restart server to advertise copied projects
     echo "restart OpenRefine server to advertise copied projects..." 
     docker stop -t=5000 ${uuid}
     docker rm ${uuid}
@@ -162,64 +164,65 @@ if [ -n "$crossprojects" ]; then
     until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
     docker attach ${uuid} &
     echo ""
-fi
-
-# loop for all projects
-for projectid in "${projects[@]}" ; do
-    # time
-    echo "--- begin project $projectid @ $(date) ---"
-    echo ""
-
-    # apply transformation rules
-    if [ -n "$jsonfiles" ]; then
-        for jsonfile in "${jsonfiles[@]}" ; do
-            echo "transform ${jsonfile}..."
-            # run client with apply command
-            docker run --rm --link ${uuid} -v ${configdir}:/data felixlohmeier/openrefine-client -H ${uuid} -f ${jsonfile} ${projectid}
-            # show statistics
-            ps -o start,etime,%mem,%cpu,rss -C java --sort=start
-            # restart server to clear memory
-            if [ "$restarttransform" = "restarttransform-true" ]; then
-                echo "save project and restart OpenRefine server..." 
-                docker stop -t=5000 ${uuid}
-                docker rm ${uuid}
-                docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-                until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-                docker attach ${uuid} &
-            fi
-            echo ""
-        done
-    fi
-
-    # export project to workspace
-    if [ "$export" = "export-true" ]; then
-        echo "export to file ${projectid}.tsv..."
-        # run client with export command
-        docker run --rm --link ${uuid} -v ${outputdir}:/data felixlohmeier/openrefine-client -H ${uuid} -E --output=${projectid}.tsv ${projectid}
-        # show statistics
-        ps -o start,etime,%mem,%cpu,rss -C java --sort=start
-        # restart server to clear memory
-        if [ "$restartfile" = "restartfile-true" ]; then    
-            echo "restart OpenRefine server..." 
-            docker stop -t=5000 ${uuid}
-            docker rm ${uuid}
-            docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-            until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-            docker attach ${uuid} &
-        fi
-        echo""
-    fi
-
-    # time
-    echo "--- finished project $projectid @ $(date) ---"
-    echo ""
-done
-
-# list output files
-if [ "$export" = "export-true" ]; then
-    echo "output (number of lines / size in bytes):"
-    wc -c -l ${outputdir}/*.tsv
-    echo ""
+  fi
+  
+  # loop for all projects
+  for projectid in "${projects[@]}" ; do
+      # time
+      echo "--- begin project $projectid @ $(date) ---"
+      echo ""
+  
+      # apply transformation rules
+      if [ -n "$jsonfiles" ]; then
+          for jsonfile in "${jsonfiles[@]}" ; do
+              echo "transform ${jsonfile}..."
+              # run client with apply command
+              docker run --rm --link ${uuid} -v ${configdir}:/data felixlohmeier/openrefine-client -H ${uuid} -f ${jsonfile} ${projectid}
+              # show statistics
+              ps -o start,etime,%mem,%cpu,rss -C java --sort=start
+              # restart server to clear memory
+              if [ "$restarttransform" = "restarttransform-true" ]; then
+                  echo "save project and restart OpenRefine server..." 
+                  docker stop -t=5000 ${uuid}
+                  docker rm ${uuid}
+                  docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+                  until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+                  docker attach ${uuid} &
+              fi
+              echo ""
+          done
+      fi
+  
+      # export project to workspace
+      if [ "$export" = "export-true" ]; then
+          echo "export to file ${projectid}.tsv..."
+          # run client with export command
+          docker run --rm --link ${uuid} -v ${outputdir}:/data felixlohmeier/openrefine-client -H ${uuid} -E --output=${projectid}.tsv ${projectid}
+          # show statistics
+          ps -o start,etime,%mem,%cpu,rss -C java --sort=start
+          # restart server to clear memory
+          if [ "$restartfile" = "restartfile-true" ]; then    
+              echo "restart OpenRefine server..." 
+              docker stop -t=5000 ${uuid}
+              docker rm ${uuid}
+              docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+              until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+              docker attach ${uuid} &
+          fi
+          echo""
+      fi
+  
+      # time
+      echo "--- finished project $projectid @ $(date) ---"
+      echo ""
+  done
+  
+  # list output files
+  if [ "$export" = "export-true" ]; then
+      echo "output (number of lines / size in bytes):"
+      wc -c -l ${outputdir}/*.tsv
+      echo ""
+  fi
 fi
 
 # cleanup
