@@ -7,14 +7,20 @@ Seth van Hooland, Ruben Verborgh and Max De Wilde (August 5, 2013): Cleaning Dat
 ## Usage
 
 ```
-./openrefine-batch.sh examples/powerhouse-museum/input/ examples/powerhouse-museum/config/ examples/powerhouse-museum/output/ 4G tsv --processQuotes=false --guessCellValueTypes=true
+sudo ./openrefine-batch.sh \
+examples/powerhouse-museum/input/ \
+examples/powerhouse-museum/config/ \
+examples/powerhouse-museum/output/ \
+examples/powerhouse-museum/cross/ \
+2G 2.7rc1 restartfile-false restarttransform-false export-true \
+tsv --processQuotes=false --guessCellValueTypes=true
 ```
 
-## phm-collection.tsv
+## input/phm-collection.tsv
 
 * The [Powerhouse Museum in Sydney](https://maas.museum/powerhouse-museum/) provides a freely available metadata export of its collection on its website. The collection metadata has been retrieved from the website freeyourmetadata.org that has redistributed the data: http://data.freeyourmetadata.org/powerhouse-museum/
 
-## phm-tutorial.json
+## config/phm-tutorial.json
 
 * All steps from the tutorial above, extracted from the history of the processed tutorial project, retrieved from the website freeyourmetadata.org: [phm-collection-cleaned.google-refine.tar.gz](http://data.freeyourmetadata.org/powerhouse-museum/phm-collection-cleaned.google-refine.tar.gz)
 
