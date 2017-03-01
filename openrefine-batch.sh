@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v0.6.2, 01.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v0.6.3, 01.03.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # user input
@@ -157,13 +157,13 @@ if [ -n "$jsonfiles" ] || [ "$export" = "export-true" ]; then
       # copy given projects to workspace
       rsync -a --exclude='*.project/history' $crossdir/*.project $outputdir
       # restart server to advertise copied projects
-    echo "restart OpenRefine server to advertise copied projects..." 
-    docker stop -t=5000 ${uuid}
-    docker rm ${uuid}
-    docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-    until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-    docker attach ${uuid} &
-    echo ""
+      echo "restart OpenRefine server to advertise copied projects..." 
+      docker stop -t=5000 ${uuid}
+      docker rm ${uuid}
+      docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+      until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+      docker attach ${uuid} &
+      echo ""
   fi
   
   # loop for all projects
@@ -230,6 +230,10 @@ echo "cleanup..."
 docker stop -t=5000 ${uuid}
 docker rm ${uuid}
 rm -r -f ${outputdir}/workspace*.json
+# delete duplicates from copied projects
+if [ -n "$crossprojects" ]; then
+  for i in "${crossprojects[@]}" ; do rm -r -f ${outputdir}/${i} done
+fi
 echo ""
 
 # time
