@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v0.6.3, 01.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v0.6.4, 01.03.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # user input
@@ -232,7 +232,7 @@ docker rm ${uuid}
 rm -r -f ${outputdir}/workspace*.json
 # delete duplicates from copied projects
 if [ -n "$crossprojects" ]; then
-  for i in "${crossprojects[@]}" ; do rm -r -f ${outputdir}/${i} done
+  for i in "${crossprojects[@]}" ; do rm -r -f ${outputdir}/${i} ; done
 fi
 echo ""
 
