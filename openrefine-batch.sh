@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v0.6, 01.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v0.6.1, 01.03.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # user input
@@ -9,7 +9,9 @@ if [ -z "$1" ]
     exit 2
   else
     inputdir=$(readlink -f $1)
-    inputfiles=($(find -L ${inputdir}/* -type f -printf "%f\n" 2>/dev/null))
+    if [ ! -z "${inputdir// }" ] ; then
+      inputfiles=($(find -L ${inputdir}/* -type f -printf "%f\n" 2>/dev/null))
+    fi
 fi
 if [ -z "$2" ]
   then
@@ -17,7 +19,9 @@ if [ -z "$2" ]
     exit 2
   else
     configdir=$(readlink -f $2)
-    jsonfiles=($(find -L ${configdir}/* -type f -printf "%f\n" 2>/dev/null))
+    if [ ! -z "${configdir// }" ] ; then
+      jsonfiles=($(find -L ${configdir}/* -type f -printf "%f\n" 2>/dev/null))
+    fi
 fi
 if [ -z "$3" ]
   then
@@ -33,7 +37,9 @@ if [ -z "$4" ]
     exit 2
   else
     crossdir=$(readlink -f $4)
-    crossprojects=($(find -L ${crossdir}/* -maxdepth 0 -type d -printf "%f\n" 2>/dev/null))
+    if [ ! -z "${crossdir// }" ] ; then
+      crossprojects=($(find -L ${crossdir}/* -maxdepth 0 -type d -printf "%f\n" 2>/dev/null))
+    fi
 fi
 if [ -z "$5" ]
   then
