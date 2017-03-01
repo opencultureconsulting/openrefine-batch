@@ -28,15 +28,15 @@ sudo ./openrefine-batch.sh input/ config/ OUTPUT/
 
 Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon by using `sudo`. If you created a Docker group in [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) then you may call the script without `sudo`.
 
-#### INPUTFILES
-* any data that [OpenRefine supports](https://github.com/OpenRefine/OpenRefine/wiki/Importers). CSV, TSV and line-based files should work out of the box. XML, JSON, fixed-width, XSLX and ODS need one additional input parameter (see chapter options below): 
+**INPUTFILES**
+* any data that [OpenRefine supports](https://github.com/OpenRefine/OpenRefine/wiki/Importers). CSV, TSV and line-based files should work out of the box. XML, JSON, fixed-width, XSLX and ODS need one additional input parameter (see chapter [Options](https://github.com/felixlohmeier/openrefine-batch#options) below)
 * multiple slices of data may be transformed into a into a single file [by providing a zip or tar.gz archive])
 * you may use hard symlinks instead of cp: `ln INPUTFILE input/`
 
-#### CONFIGFILES
+**CONFIGFILES**
 * JSON files with [OpenRefine transformation rules)](http://kb.refinepro.com/2012/06/google-refine-json-and-my-notepad-or.html)
 
-#### OUTPUT/
+**OUTPUT/**
 * path to directory where results and temporary data should be stored
 * Transformed data will be stored in this directory in TSV (tab-separated values) format. Show results: `ls OUTPUT/*.tsv`
 * OpenRefine stores data in directories like "1234567890123.project". You may have a look at the results by starting OpenRefine with this workspace. Delete the directories if you do not need them: `rm -r -f OUTPUT/*.project`
@@ -99,7 +99,77 @@ more inputoptions (optional, only together with inputformat):
 The script uses `docker attach` to print log messages from OpenRefine server and `ps` to show statistics for each step. Here is a sample log:
 
 ```
+[17:54 felix ~/openrefine-batch]$ sudo ./openrefine-batch.sh \
+> examples/powerhouse-museum/input/ \
+> examples/powerhouse-museum/config/ \
+> examples/powerhouse-museum/output/ \
+> examples/powerhouse-museum/cross/ \
+> 2G 2.7rc1 restartfile-false restarttransform-false export-true \
+> tsv --processQuotes=false --guessCellValueTypes=true
+Input directory:         /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/input
+Input files:             phm-collection.tsv
+Input format:            --format=tsv
+Input options:           --processQuotes=false --guessCellValueTypes=true
+Config directory:        /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/config
+Transformation rules:    phm-transform.json
+Cross directory:         /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/cross
+Cross projects:          
+OpenRefine heap space:   2G
+OpenRefine version:      2.7rc1
+OpenRefine workspace:    /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/output
+Export TSV to workspace: export-true
+Docker container name:   6b622f38-bbdd-4a28-b590-0c7fdf9d577b
+restart after file:      restartfile-false
+restart after transform: restarttransform-false
 
+begin: Mi 1. Mär 17:54:45 CET 2017
+
+start OpenRefine server...
+2d836891cbc79f730f18262c9f98b6406b5323ca9fd84636afb194a664abf66e
+
+=== IMPORT ===
+
+import phm-collection.tsv...
+16:54:59.290 [                   refine] POST /command/core/create-project-from-upload (4748ms)
+New project: 1831307645035
+16:55:15.514 [                   refine] GET /command/core/get-rows (16224ms)
+Number of rows: 75814
+ STARTED     ELAPSED %MEM %CPU   RSS
+17:54:46       00:31  9.7  109 788156
+
+=== TRANSFORM / EXPORT ===
+
+get project ids...
+16:55:21.258 [                   refine] GET /command/core/get-all-project-metadata (5744ms)
+ 1831307645035: phm-collection.tsv
+
+--- begin project 1831307645035 @ Mi 1. Mär 17:55:22 CET 2017 ---
+
+transform phm-transform.json...
+16:55:23.983 [                   refine] GET /command/core/get-models (2725ms)
+16:55:24.002 [                   refine] POST /command/core/apply-operations (19ms)
+ STARTED     ELAPSED %MEM %CPU   RSS
+17:54:46       01:26 13.3  118 1076800
+
+export to file 1831307645035.tsv...
+16:56:14.909 [                   refine] GET /command/core/get-models (50907ms)
+16:56:14.933 [                   refine] GET /command/core/get-all-project-metadata (24ms)
+16:56:14.949 [                   refine] POST /command/core/export-rows/phm-collection.tsv.tsv (16ms)
+ STARTED     ELAPSED %MEM %CPU   RSS
+17:54:46       03:10 13.9 59.2 1130304
+
+--- finished project 1831307645035 @ Mi 1. Mär 17:57:57 CET 2017 ---
+
+output (number of lines / size in bytes):
+  167017 60527726 /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/output/1831307645035.tsv
+
+cleanup...
+16:58:00.158 [           ProjectManager] Saving all modified projects ... (105209ms)
+16:58:07.242 [        project_utilities] Saved project '1831307645035' (7084ms)
+6b622f38-bbdd-4a28-b590-0c7fdf9d577b
+6b622f38-bbdd-4a28-b590-0c7fdf9d577b
+
+finish: Mi 1. Mär 17:58:09 CET 2017
 ```
 
 ### Todo
