@@ -6,7 +6,9 @@ Shell script to run OpenRefine in batch mode (import, transform, export). This b
 2. transforms the data by applying OpenRefine transformation rules from all json files in another given directory and
 3. finally exports the data in TSV (tab-separated values) format.
 
-It orchestrates a [docker container for OpenRefine](https://hub.docker.com/r/felixlohmeier/openrefine/) (server) and a [docker container for a python client](https://hub.docker.com/r/felixlohmeier/openrefine-client/) that communicates with the OpenRefine API. By restarting the server after each process it reduces memory requirements to a minimum.
+It orchestrates [OpenRefine](https://github.com/OpenRefine/OpenRefine) (server) and a [python client](https://github.com/felixlohmeier/openrefine-client) that communicates with the OpenRefine API. By restarting the server after each process it reduces memory requirements to a minimum.
+
+If you prefer a containerized approach, see a [variation of this script for Docker](#docker) below.
 
 ### Typical Workflow
 
@@ -15,22 +17,23 @@ It orchestrates a [docker container for OpenRefine](https://hub.docker.com/r/fel
 
 ### Install
 
-1. Install [Docker](https://docs.docker.com/engine/installation/#on-linux) and **a)** [configure Docker to start on boot](https://docs.docker.com/engine/installation/linux/linux-postinstall/#configure-docker-to-start-on-boot) or **b)** start Docker on demand each time you use the script: `sudo systemctl start docker`
-2. Download the script and grant file permissions to execute: `wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch.sh && chmod +x openrefine-batch.sh`
+Download the script and grant file permissions to execute: `wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch.sh && chmod +x openrefine-batch.sh`
+
+That's all. The script will automatically download copies of OpenRefine and the python client on first run and will tell you if something (python, java) is missing.
 
 ### Usage
 
 ```
-mkdir -p input && cp INPUTFILES input/
-mkdir -p config && cp CONFIGFILES config/
-sudo ./openrefine-batch.sh input/ config/ OUTPUT/
+mkdir input
+cp INPUTFILES input/
+mkdir config
+cp CONFIGFILES config/
+./openrefine-batch.sh input/ config/ OUTPUT/
 ```
-
-Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon by using `sudo`. If you created a Docker group in [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) then you may call the script without `sudo`.
 
 **INPUTFILES**
 * any data that [OpenRefine supports](https://github.com/OpenRefine/OpenRefine/wiki/Importers). CSV, TSV and line-based files should work out of the box. XML, JSON, fixed-width, XSLX and ODS need one additional input parameter (see chapter [Options](https://github.com/felixlohmeier/openrefine-batch#options) below)
-* multiple slices of data may be transformed into a into a single file [by providing a zip or tar.gz archive])
+* multiple slices of data may be transformed into a into a single file [by providing a zip or tar.gz archive](https://github.com/OpenRefine/OpenRefine/wiki/Importers)
 * you may use hard symlinks instead of cp: `ln INPUTFILE input/`
 
 **CONFIGFILES**
@@ -41,140 +44,204 @@ Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon 
 * Transformed data will be stored in this directory in TSV (tab-separated values) format. Show results: `ls OUTPUT/*.tsv`
 * OpenRefine stores data in directories like "1234567890123.project". You may have a look at the results by starting OpenRefine with this workspace. Delete the directories if you do not need them: `rm -r -f OUTPUT/*.project`
 
-#### Example
+### Example
+
+[Example Powerhouse Museum](examples/powerhouse-museum)
+
+```
+./openrefine-batch.sh \
+-a examples/powerhouse-museum/input/ \
+-b examples/powerhouse-museum/config/ \
+-c examples/powerhouse-museum/output/ \
+-f tsv \
+-i processQuotes=false \
+-i guessCellValueTypes=true \
+-RX
+```
 
 clone or [download GitHub repository](https://github.com/felixlohmeier/openrefine-batch/archive/master.zip) to get example data
 
-```
-sudo ./openrefine-batch.sh \
-examples/powerhouse-museum/input/ \
-examples/powerhouse-museum/config/ \
-examples/powerhouse-museum/output/ \
-examples/powerhouse-museum/cross/ \
-2G 2.7rc1 restartfile-false restarttransform-false export-true \
-tsv --processQuotes=false --guessCellValueTypes=true
-```
-
-#### Options
+### Help Screen
 
 ```
-sudo ./openrefine-batch.sh $inputdir $configdir $outputdir $crossdir $ram $version $restartfile $restarttransform $export $inputformat $inputoptions
+[18:20 felix ~/openrefine-batch]$ ./openrefine-batch.sh
+Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
+
+== basic arguments ==
+    -a INPUTDIR      path to directory with source files (leave empty to transform only ; multiple files may be imported into a single project by providing a zip or tar.gz archive, cf. https://github.com/OpenRefine/OpenRefine/wiki/Importers )
+    -b TRANSFORMDIR  path to directory with OpenRefine transformation rules (json files, cf. http://kb.refinepro.com/2012/06/google-refine-json-and-my-notepad-or.html ; leave empty to transform only)
+    -c OUTPUTDIR     path to directory for exported files (and OpenRefine workspace)
+
+== options ==
+    -d CROSSDIR      path to directory with additional OpenRefine projects (will be copied to workspace before transformation step to support the cross function, cf. https://github.com/OpenRefine/OpenRefine/wiki/GREL-Other-Functions )
+    -f INPUTFORMAT   (csv, tsv, xml, json, line-based, fixed-width, xlsx, ods)
+    -i INPUTOPTIONS  several options provided by openrefine-client, see below...
+    -m RAM           maximum RAM for OpenRefine java heap space (default: 2048M)
+    -p PORT          PORT on which OpenRefine should listen (default: 3333)
+    -E               do NOT export files
+    -R               do NOT restart OpenRefine after each transformation (e.g. config file)
+    -X               do NOT restart OpenRefine after each project (e.g. input file)
+    -h               displays this help screen
+
+== inputoptions (mandatory for xml, json, fixed-width, xslx, ods) ==
+    -i recordPath=RECORDPATH (xml, json): please provide path in multiple arguments without slashes, e.g. /collection/record/ should be entered like this: --recordPath=collection --recordPath=record
+    -i columnWidths=COLUMNWIDTHS (fixed-width): please provide widths separated by comma (e.g. 7,5)
+    -i sheets=SHEETS (xlsx, ods): please provide sheets separated by comma (e.g. 0,1), default: 0 (first sheet)
+
+== more inputoptions (optional, only together with inputformat) ==
+    -i projectName=PROJECTNAME (all formats)
+    -i limit=LIMIT (all formats), default: -1
+    -i includeFileSources=INCLUDEFILESOURCES (all formats), default: false
+    -i trimStrings=TRIMSTRINGS (xml, json), default: false
+    -i storeEmptyStrings=STOREEMPTYSTRINGS (xml, json), default: true
+    -i guessCellValueTypes=GUESSCELLVALUETYPES (xml, csv, tsv, fixed-width, json), default: false
+    -i encoding=ENCODING (csv, tsv, line-based, fixed-width), please provide short encoding name (e.g. UTF-8)
+    -i ignoreLines=IGNORELINES (csv, tsv, line-based, fixed-width, xlsx, ods), default: -1
+    -i headerLines=HEADERLINES (csv, tsv, fixed-width, xlsx, ods), default: 1
+    -i skipDataLines=SKIPDATALINES (csv, tsv, line-based, fixed-width, xlsx, ods), default: 0
+    -i storeBlankRows=STOREBLANKROWS (csv, tsv, line-based, fixed-width, xlsx, ods), default: true
+    -i processQuotes=PROCESSQUOTES (csv, tsv), default: true
+    -i storeBlankCellsAsNulls=STOREBLANKCELLSASNULLS (csv, tsv, line-based, fixed-width, xlsx, ods), default: true
+    -i linesPerRow=LINESPERROW (line-based), default: 1
+
+== example ==
+
+./openrefine-batch.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true
+
+clone or download GitHub repository to get example data:
+https://github.com/felixlohmeier/openrefine-batch/archive/master.zip
+
 ```
-
-1. inputdir: path to directory with source files (multiple files may be imported into a single project [by providing a zip or tar.gz archive](https://github.com/OpenRefine/OpenRefine/wiki/Importers))
-2. configdir: path to directory with [OpenRefine transformation rules (json files)](http://kb.refinepro.com/2012/06/google-refine-json-and-my-notepad-or.html)
-3. outputdir: path to directory for exported files (and OpenRefine workspace)
-4. crossdir: path to directory with additional OpenRefine projects (will be copied to workspace before transformation step to support the [cross function](https://github.com/OpenRefine/OpenRefine/wiki/GREL-Other-Functions#crosscell-c-string-projectname-string-columnname))
-5. ram: maximum RAM for OpenRefine java heap space (default: 4G)
-6. version: OpenRefine version (2.7rc1, 2.6rc2, 2.6rc1, dev; default: 2.7rc1)
-7. restartfile: restart docker after each project (e.g. input file) to clear memory (restartfile-true/restartfile-false; default: restartfile-true)
-8. restarttransform: restart docker container after each transformation (e.g. config file) to clear memory (restarttransform-true/restarttransform-false; default: restarttransform-false)
-9. export: toggle on/off (export-true/export-false; default: export-true)
-8. inputformat: (csv, tsv, xml, json, line-based, fixed-width, xlsx, ods)
-9. inputoptions: several options provided by [openrefine-client](https://hub.docker.com/r/felixlohmeier/openrefine-client/)
-
-inputoptions (mandatory for xml, json, fixed-width, xslx, ods):
-* `--recordPath=RECORDPATH` (xml, json): please provide path in multiple arguments without slashes, e.g. /collection/record/ should be entered like this: `--recordPath=collection --recordPath=record`
-* `--columnWidths=COLUMNWIDTHS` (fixed-width): please provide widths separated by comma (e.g. 7,5)
-* `--sheets=SHEETS` (xlsx, ods): please provide sheets separated by comma (e.g. 0,1), default: 0 (first sheet)
-
-more inputoptions (optional, only together with inputformat):
-* `--projectName=PROJECTNAME` (all formats)
-* `--limit=LIMIT` (all formats), default: -1
-* `--includeFileSources=INCLUDEFILESOURCES` (all formats), default: false
-* `--trimStrings=TRIMSTRINGS` (xml, json), default: false
-* `--storeEmptyStrings=STOREEMPTYSTRINGS` (xml, json), default: true
-* `--guessCellValueTypes=GUESSCELLVALUETYPES (xml, csv, tsv, fixed-width, json)`, default: false
-* `--encoding=ENCODING (csv, tsv, line-based, fixed-width)`, please provide short encoding name (e.g. UTF-8)
-* `--ignoreLines=IGNORELINES (csv, tsv, line-based, fixed-width, xlsx, ods)`, default: -1
-* `--headerLines=HEADERLINES` (csv, tsv, fixed-width, xlsx, ods), default: 1
-* `--skipDataLines=SKIPDATALINES` (csv, tsv, line-based, fixed-width, xlsx, ods), default: 0
-* `--storeBlankRows=STOREBLANKROWS` (csv, tsv, line-based, fixed-width, xlsx, ods), default: true
-* `--processQuotes=PROCESSQUOTES` (csv, tsv), default: true
-* `--storeBlankCellsAsNulls=STOREBLANKCELLSASNULLS` (csv, tsv, line-based, fixed-width, xlsx, ods), default: true
-* `--linesPerRow=LINESPERROW` (line-based), default: 1
 
 ### Logging
 
-The script uses `docker attach` to print log messages from OpenRefine server and `ps` to show statistics for each step. Here is a sample log:
+The script prints log messages from OpenRefine server and makes use of `ps` to show statistics for each step. Here is a sample:
 
 ```
-[17:54 felix ~/openrefine-batch]$ sudo ./openrefine-batch.sh \
-> examples/powerhouse-museum/input/ \
-> examples/powerhouse-museum/config/ \
-> examples/powerhouse-museum/output/ \
-> examples/powerhouse-museum/cross/ \
-> 2G 2.7rc1 restartfile-false restarttransform-false export-true \
-> tsv --processQuotes=false --guessCellValueTypes=true
-Input directory:         /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/input
+[17:55 felix ~/openrefine-batch]$ ./openrefine-batch.sh \
+> -a examples/powerhouse-museum/input/ \
+> -b examples/powerhouse-museum/config/ \
+> -c examples/powerhouse-museum/output/ \
+> -f tsv \
+> -i processQuotes=false \
+> -i guessCellValueTypes=true \
+> -RX
+Input directory:         /home/felix/openrefine-batch/examples/powerhouse-museum/input
 Input files:             phm-collection.tsv
 Input format:            --format=tsv
 Input options:           --processQuotes=false --guessCellValueTypes=true
-Config directory:        /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/config
+Config directory:        /home/felix/openrefine-batch/examples/powerhouse-museum/config
 Transformation rules:    phm-transform.json
-Cross directory:         /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/cross
+Cross directory:         /dev/null
 Cross projects:          
-OpenRefine heap space:   2G
-OpenRefine version:      2.7rc1
-OpenRefine workspace:    /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/output
-Export TSV to workspace: export-true
-Docker container name:   6b622f38-bbdd-4a28-b590-0c7fdf9d577b
-restart after file:      restartfile-false
-restart after transform: restarttransform-false
+OpenRefine heap space:   2048M
+OpenRefine port:         3333
+OpenRefine workspace:    /home/felix/openrefine-batch/examples/powerhouse-museum/output
+Export TSV to workspace: true
+restart after file:      false
+restart after transform: false
 
-begin: Mi 1. Mär 17:54:45 CET 2017
+=== 1. Launch OpenRefine ===
 
-start OpenRefine server...
-2d836891cbc79f730f18262c9f98b6406b5323ca9fd84636afb194a664abf66e
+starting time: Di 14. Mär 17:58:08 CET 2017
 
-=== IMPORT ===
+Starting OpenRefine at 'http://127.0.0.1:3333/'
+
+17:58:08.758 [            refine_server] Starting Server bound to '127.0.0.1:3333' (0ms)
+17:58:08.760 [            refine_server] refine.memory size: 2048M JVM Max heap: 1908932608 (2ms)
+17:58:08.787 [            refine_server] Initializing context: '/' from '/home/felix/openrefine-batch/openrefine/webapp' (27ms)
+17:58:09.463 [                   refine] Starting OpenRefine 2.7-rc.1 [TRUNK]... (676ms)
+17:58:09.476 [       FileProjectManager] Failed to load workspace from any attempted alternatives. (13ms)
+17:58:12.003 [                   refine] Running in headless mode (2527ms)
+
+=== 2. Import all files ===
+
+starting time: Di 14. Mär 17:58:12 CET 2017
 
 import phm-collection.tsv...
-16:54:59.290 [                   refine] POST /command/core/create-project-from-upload (4748ms)
-New project: 1831307645035
-16:55:15.514 [                   refine] GET /command/core/get-rows (16224ms)
+17:58:13.068 [                   refine] POST /command/core/create-project-from-upload (1065ms)
+New project: 2073385535316
+17:58:26.543 [                   refine] GET /command/core/get-rows (13475ms)
 Number of rows: 75814
  STARTED     ELAPSED %MEM %CPU   RSS
-17:54:46       00:31  9.7  109 788156
+17:58:07       00:18  9.8  168 795024
 
-=== TRANSFORM / EXPORT ===
+=== 3. Prepare transform & export ===
+
+starting time: Di 14. Mär 17:58:26 CET 2017
 
 get project ids...
-16:55:21.258 [                   refine] GET /command/core/get-all-project-metadata (5744ms)
- 1831307645035: phm-collection.tsv
+17:58:26.778 [                   refine] GET /command/core/get-all-project-metadata (235ms)
+ 2073385535316: phm-collection.tsv
 
---- begin project 1831307645035 @ Mi 1. Mär 17:55:22 CET 2017 ---
+=== 4. Transform phm-collection.tsv ===
+
+starting time: Di 14. Mär 17:58:26 CET 2017
 
 transform phm-transform.json...
-16:55:23.983 [                   refine] GET /command/core/get-models (2725ms)
-16:55:24.002 [                   refine] POST /command/core/apply-operations (19ms)
+17:58:26.917 [                   refine] GET /command/core/get-models (139ms)
+17:58:26.934 [                   refine] POST /command/core/apply-operations (17ms)
  STARTED     ELAPSED %MEM %CPU   RSS
-17:54:46       01:26 13.3  118 1076800
+17:58:07       01:02 13.5  134 1096916
 
-export to file 1831307645035.tsv...
-16:56:14.909 [                   refine] GET /command/core/get-models (50907ms)
-16:56:14.933 [                   refine] GET /command/core/get-all-project-metadata (24ms)
-16:56:14.949 [                   refine] POST /command/core/export-rows/phm-collection.tsv.tsv (16ms)
+
+=== 5. Export phm-collection.tsv ===
+
+starting time: Di 14. Mär 17:59:09 CET 2017
+
+export to file phm-collection.tsv...
+17:59:09.944 [                   refine] GET /command/core/get-models (43010ms)
+17:59:09.956 [                   refine] GET /command/core/get-all-project-metadata (12ms)
+17:59:09.967 [                   refine] POST /command/core/export-rows/phm-collection.tsv.tsv (11ms)
  STARTED     ELAPSED %MEM %CPU   RSS
-17:54:46       03:10 13.9 59.2 1130304
+17:58:07       02:24 13.5 60.5 1098056
 
---- finished project 1831307645035 @ Mi 1. Mär 17:57:57 CET 2017 ---
 
 output (number of lines / size in bytes):
-  167017 60527726 /home/felix/occcloud/Openness/Kunden+Projekte/OpenRefine/openrefine-batch/examples/powerhouse-museum/output/1831307645035.tsv
+  167017 60527726 /home/felix/openrefine-batch/examples/powerhouse-museum/output/phm-collection.tsv
 
 cleanup...
-16:58:00.158 [           ProjectManager] Saving all modified projects ... (105209ms)
-16:58:07.242 [        project_utilities] Saved project '1831307645035' (7084ms)
-6b622f38-bbdd-4a28-b590-0c7fdf9d577b
-6b622f38-bbdd-4a28-b590-0c7fdf9d577b
+18:00:35.425 [           ProjectManager] Saving all modified projects ... (85458ms)
+18:00:42.357 [        project_utilities] Saved project '2073385535316' (6932ms)
 
-finish: Mi 1. Mär 17:58:09 CET 2017
+=== Statistics ===
+
+starting time and run time of each step:
+                      Start process Di 14. Mär 17:58:08 CET 2017 (00:00:00)
+                  Launch OpenRefine Di 14. Mär 17:58:08 CET 2017 (00:00:04)
+                   Import all files Di 14. Mär 17:58:12 CET 2017 (00:00:14)
+         Prepare transform & export Di 14. Mär 17:58:26 CET 2017 (00:00:00)
+       Transform phm-collection.tsv Di 14. Mär 17:58:26 CET 2017 (00:00:43)
+          Export phm-collection.tsv Di 14. Mär 17:59:09 CET 2017 (00:01:34)
+                        End process Di 14. Mär 18:00:43 CET 2017 (00:00:00)
+
+total run time: 00:02:35 (hh:mm:ss)
+highest memory load: 1072 MB
 ```
+
+### Docker
+
+A variation of the shell script orchestrates a [docker container for OpenRefine](https://hub.docker.com/r/felixlohmeier/openrefine/) (server) and a [docker container for the python client](https://hub.docker.com/r/felixlohmeier/openrefine-client/) instead of native applications.
+
+**Install**
+
+1. Install [Docker](https://docs.docker.com/engine/installation/#on-linux) and **a)** [configure Docker to start on boot](https://docs.docker.com/engine/installation/linux/linux-postinstall/#configure-docker-to-start-on-boot) or **b)** start Docker on demand each time you use the script: `sudo systemctl start docker`
+2. Download the script and grant file permissions to execute: `wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch-docker.sh && chmod +x openrefine-batch-docker.sh`
+
+**Usage**
+
+```
+mkdir input
+cp INPUTFILES input/
+mkdir config
+cp CONFIGFILES config/
+sudo ./openrefine-batch-docker.sh input/ config/ OUTPUT/
+```
+
+Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon by using `sudo`. If you created a Docker group in [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) then you may call the script without `sudo`.
 
 ### Todo
 
-- [ ] use getopts for parsing of arguments
 - [ ] howto for extracting input options from OpenRefine GUI with Firefox network monitor
 - [ ] add option to delete openrefine projects in output directory
 - [ ] provide more example data from other OpenRefine tutorials

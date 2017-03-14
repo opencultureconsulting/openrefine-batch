@@ -7,13 +7,14 @@ Seth van Hooland, Ruben Verborgh and Max De Wilde (August 5, 2013): Cleaning Dat
 ## Usage
 
 ```
-sudo ./openrefine-batch.sh \
-examples/powerhouse-museum/input/ \
-examples/powerhouse-museum/config/ \
-examples/powerhouse-museum/output/ \
-examples/powerhouse-museum/cross/ \
-2G 2.7rc1 restartfile-false restarttransform-false export-true \
-tsv --processQuotes=false --guessCellValueTypes=true
+./openrefine-batch.sh \
+-a examples/powerhouse-museum/input/ \
+-b examples/powerhouse-museum/config/ \
+-c examples/powerhouse-museum/output/ \
+-f tsv \
+-i processQuotes=false \
+-i guessCellValueTypes=true \
+-RX
 ```
 
 ## input/phm-collection.tsv
