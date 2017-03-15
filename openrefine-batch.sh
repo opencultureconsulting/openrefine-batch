@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.0, 14.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v1.0.1, 15.03.2017
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
@@ -22,12 +22,14 @@ if [ -z "$JAVA" ] ; then
     echo 1>&2 "This action requires you to have 'Java JRE' installed. You can download it for free at https://java.com"
     exit 1
 fi
+# check if wget supports option --show-progress (since wget 1.16)
+wget --help | grep -q '\--show-progress' && wget_opt="--show-progress" || wget_opt=""
 
 # autoinstall OpenRefine
 if [ ! -d "openrefine" ]; then
     echo "Download OpenRefine..."
     mkdir -p openrefine
-    wget -q --show-progress $openrefine_URL
+    wget -q $wget_opt $openrefine_URL
     echo "Install OpenRefine in subdirectory openrefine..."
     tar -xzf "$(basename $openrefine_URL)" -C openrefine --strip 1 --totals
     rm -f "$(basename $openrefine_URL)"
@@ -39,7 +41,7 @@ fi
 if [ ! -d "openrefine-client" ]; then
     echo "Download OpenRefine client..."
     mkdir -p openrefine-client
-    wget -q --show-progress $client_URL
+    wget -q $wget_opt $client_URL
     echo "Install OpenRefine client in subdirectory openrefine-client..."
     tar -xzf "$(basename $client_URL)" -C openrefine-client --strip 1 --totals
     rm -f "$(basename $client_URL)"
