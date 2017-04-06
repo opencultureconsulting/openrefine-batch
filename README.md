@@ -28,7 +28,7 @@ mkdir input
 cp INPUTFILES input/
 mkdir config
 cp CONFIGFILES config/
-./openrefine-batch.sh input/ config/ OUTPUT/
+./openrefine-batch.sh -a input/ -b config/ -c OUTPUT/
 ```
 
 **INPUTFILES**
