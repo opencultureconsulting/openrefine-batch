@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.0, 14.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v1.1, 2017-06-20
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
@@ -17,7 +17,7 @@ fi
 # help screen
 function usage () {
     cat <<EOF
-Usage: ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
+Usage: sudo ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 
 == basic arguments ==
     -a INPUTDIR      path to directory with source files (leave empty to transform only ; multiple files may be imported into a single project by providing a zip or tar.gz archive, cf. https://github.com/OpenRefine/OpenRefine/wiki/Importers )
@@ -29,7 +29,7 @@ Usage: ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDI
     -f INPUTFORMAT   (csv, tsv, xml, json, line-based, fixed-width, xlsx, ods)
     -i INPUTOPTIONS  several options provided by openrefine-client, see below...
     -m RAM           maximum RAM for OpenRefine java heap space (default: 2048M)
-    -v VERSION       OpenRefine version (2.7rc2, 2.7rc1, 2.6rc2, 2.6rc1, dev; default: 2.7rc2)
+    -v VERSION       OpenRefine version (2.7, 2.7rc2, 2.7rc1, 2.6rc2, 2.6rc1, dev; default: 2.7)
     -E               do NOT export files
     -R               do NOT restart OpenRefine after each transformation (e.g. config file)
     -X               do NOT restart OpenRefine after each project (e.g. input file)
@@ -58,13 +58,14 @@ Usage: ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDI
 
 == example ==
 
-./openrefine-batch-docker.sh \
+sudo ./openrefine-batch-docker.sh \
 -a examples/powerhouse-museum/input/ \
 -b examples/powerhouse-museum/config/ \
 -c examples/powerhouse-museum/output/ \
 -f tsv \
 -i processQuotes=false \
--i guessCellValueTypes=true
+-i guessCellValueTypes=true \
+-RX
 
 clone or download GitHub repository to get example data:
 https://github.com/felixlohmeier/openrefine-batch/archive/master.zip
@@ -75,7 +76,7 @@ EOF
 
 # defaults
 ram="2048M"
-version="2.7rc2"
+version="2.7"
 restartfile="true"
 restarttransform="true"
 export="true"
@@ -160,6 +161,7 @@ echo ""
 checkpoints=${#checkpointdate[@]}
 checkpointdate[$(($checkpoints + 1))]=$(date +%s)
 checkpointname[$(($checkpoints + 1))]="Start process"
+memoryload=()
 
 # launch server
 checkpoints=${#checkpointdate[@]}
@@ -169,7 +171,7 @@ echo "=== $checkpoints. ${checkpointname[$(($checkpoints + 1))]} ==="
 echo ""
 echo "starting time: $(date --date=@${checkpointdate[$(($checkpoints + 1))]})"
 echo ""
-docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
 # wait until server is available
 until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
 # show server logs
@@ -188,16 +190,17 @@ if [ -n "$inputfiles" ]; then
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
         # run client with input command
-        docker run --rm --link ${uuid} -v ${inputdir}:/data felixlohmeier/openrefine-client -H ${uuid} -c $inputfile $inputformat ${inputoptions[@]}
+        docker run --rm --link ${uuid} -v ${inputdir}:/data:z felixlohmeier/openrefine-client -H ${uuid} -c $inputfile $inputformat ${inputoptions[@]}
         # show allocated system resources
         ps -o start,etime,%mem,%cpu,rss -C java --sort=start
+        memoryload+=($(ps --no-headers -o rss -C java))
         echo ""
         # restart server to clear memory
         if [ "$restartfile" = "true" ]; then
             echo "save project and restart OpenRefine server..." 
             docker stop -t=5000 ${uuid}
             docker rm ${uuid}
-            docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+            docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
             until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
             docker attach ${uuid} &
             echo ""
@@ -232,7 +235,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         echo "restart OpenRefine server to advertise copied projects..." 
         docker stop -t=5000 ${uuid}
         docker rm ${uuid}
-        docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+        docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
         until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
         docker attach ${uuid} &
         echo ""
@@ -253,16 +256,17 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             for jsonfile in "${jsonfiles[@]}" ; do
                 echo "transform ${jsonfile}..."
                 # run client with apply command
-                docker run --rm --link ${uuid} -v ${configdir}:/data felixlohmeier/openrefine-client -H ${uuid} -f ${jsonfile} ${projectids[i]}
+                docker run --rm --link ${uuid} -v ${configdir}:/data:z felixlohmeier/openrefine-client -H ${uuid} -f ${jsonfile} ${projectids[i]}
                 # allocated system resources
                 ps -o start,etime,%mem,%cpu,rss -C java --sort=start
+	        memoryload+=($(ps --no-headers -o rss -C java))
                 echo ""
                 # restart server to clear memory
                 if [ "$restarttransform" = "true" ]; then
                   echo "save project and restart OpenRefine server..." 
                   docker stop -t=5000 ${uuid}
                   docker rm ${uuid}
-                  docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+                  docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
                   until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
                   docker attach ${uuid} &
                 fi
@@ -283,9 +287,10 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             filename=${projectnames[i]%.*}
             echo "export to file ${filename}.tsv..."
             # run client with export command
-            docker run --rm --link ${uuid} -v ${outputdir}:/data felixlohmeier/openrefine-client -H ${uuid} -E --output="${filename}.tsv" ${projectids[i]}
+            docker run --rm --link ${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine-client -H ${uuid} -E --output="${filename}.tsv" ${projectids[i]}
             # show allocated system resources
             ps -o start,etime,%mem,%cpu,rss -C java --sort=start
+            memoryload+=($(ps --no-headers -o rss -C java))
             echo ""
         fi
         
@@ -294,7 +299,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
               echo "restart OpenRefine server..." 
               docker stop -t=5000 ${uuid}
               docker rm ${uuid}
-              docker run -d --name=${uuid} -v ${outputdir}:/data felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+              docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
               until docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
               docker attach ${uuid} &
         fi
@@ -337,3 +342,10 @@ done
 echo ""
 diffsec="$((${checkpointdate[$checkpoints]} - ${checkpointdate[1]}))"
 echo "total run time: $(date -d@${diffsec} -u +%H:%M:%S) (hh:mm:ss)"
+
+# calculate and print memory load
+max=${memoryload[0]}
+for n in "${memoryload[@]}" ; do
+    ((n > max)) && max=$n
+done
+echo "highest memory load: $(($max / 1024)) MB"

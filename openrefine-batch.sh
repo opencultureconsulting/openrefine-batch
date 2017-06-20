@@ -1,9 +1,9 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.0.1, 15.03.2017
+# openrefine-batch.sh, Felix Lohmeier, v1.1, 2017-06-20
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
-openrefine_URL="https://github.com/OpenRefine/OpenRefine/releases/download/2.7-rc.2/openrefine-linux-2.7-rc.2.tar.gz"
+openrefine_URL="https://github.com/OpenRefine/OpenRefine/releases/download/2.7/openrefine-linux-2.7.tar.gz"
 client_URL="https://github.com/felixlohmeier/openrefine-client/archive/v0.3.1.tar.gz"
 
 # check system requirements
@@ -98,7 +98,8 @@ Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 -c examples/powerhouse-museum/output/ \
 -f tsv \
 -i processQuotes=false \
--i guessCellValueTypes=true
+-i guessCellValueTypes=true \
+-RX
 
 clone or download GitHub repository to get example data:
 https://github.com/felixlohmeier/openrefine-batch/archive/master.zip
@@ -376,6 +377,7 @@ done
 echo ""
 diffsec="$((${checkpointdate[$checkpoints]} - ${checkpointdate[1]}))"
 echo "total run time: $(date -d@${diffsec} -u +%H:%M:%S) (hh:mm:ss)"
+
 # calculate and print memory load
 max=${memoryload[0]}
 for n in "${memoryload[@]}" ; do
