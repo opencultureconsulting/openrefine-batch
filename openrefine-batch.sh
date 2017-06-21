@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.1, 2017-06-20
+# openrefine-batch.sh, Felix Lohmeier, v1.2, 2017-06-21
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
@@ -34,6 +34,7 @@ if [ ! -d "openrefine" ]; then
     tar -xzf "$(basename $openrefine_URL)" -C openrefine --strip 1 --totals
     rm -f "$(basename $openrefine_URL)"
     sed -i '$ a JAVA_OPTIONS=-Drefine.headless=true' openrefine/refine.ini
+    sed -i 's/-Xms256M/-Xms$REFINE_MEMORY/' openrefine/refine
     echo ""
 fi
 
