@@ -1,9 +1,9 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.2, 2017-06-21
+# openrefine-batch.sh, Felix Lohmeier, v1.3, 2017-06-22
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
-openrefine_URL="https://github.com/OpenRefine/OpenRefine/releases/download/2.7/openrefine-linux-2.7.tar.gz"
+openrefine_URL="https://github.com/felixlohmeier/OpenRefine/releases/download/2.7%2Boptions/openrefine-2.7.options.tar.gz"
 client_URL="https://github.com/felixlohmeier/openrefine-client/archive/v0.3.1.tar.gz"
 
 # check system requirements
@@ -34,7 +34,8 @@ if [ ! -d "openrefine" ]; then
     tar -xzf "$(basename $openrefine_URL)" -C openrefine --strip 1 --totals
     rm -f "$(basename $openrefine_URL)"
     sed -i '$ a JAVA_OPTIONS=-Drefine.headless=true' openrefine/refine.ini
-    sed -i 's/-Xms256M/-Xms$REFINE_MEMORY/' openrefine/refine
+    sed -i 's/#REFINE_AUTOSAVE_PERIOD=1/REFINE_AUTOSAVE_PERIOD=180/' openrefine/refine.ini
+    sed -i 's/-Xms$REFINE_MIN_MEMORY/-Xms$REFINE_MEMORY/' openrefine/refine
     echo ""
 fi
 
