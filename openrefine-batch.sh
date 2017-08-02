@@ -1,22 +1,12 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.3, 2017-06-22
+# openrefine-batch.sh, Felix Lohmeier, v1.4, 2017-08-02
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
-openrefine_URL="https://github.com/felixlohmeier/OpenRefine/releases/download/2.7%2Boptions/openrefine-2.7.options.tar.gz"
-client_URL="https://github.com/felixlohmeier/openrefine-client/archive/v0.3.1.tar.gz"
+openrefine_URL="https://github.com/felixlohmeier/OpenRefine/releases/download/2017-08-02/openrefine-linux-2017-08-02.tar.gz"
+client_URL="https://github.com/felixlohmeier/openrefine-client/releases/download/v0.3.1/openrefine-client_0-3-1_linux-64bit"
 
 # check system requirements
-PYTHON="$(which python 2> /dev/null)"
-if [ -z "$PYTHON" ] ; then
-    echo 1>&2 "This action requires you to have 'python' installed and present in your PATH. You can download it for free at http://www.python.org/"
-    exit 1
-fi
-PYTHON_VERSION="$($PYTHON --version 2>&1 | cut -f 2 -d ' ' | cut -f 1,2 -d .)"
-if [ "$PYTHON_VERSION" != "2.6" ] && [ "$PYTHON_VERSION" != "2.7" ]; then
-    echo 1>&2 "This action requires Python version 2.6.x. or 2.7.x. You can download it for free at http://www.python.org/"
-    exit 1
-fi
 JAVA="$(which java 2> /dev/null)"
 if [ -z "$JAVA" ] ; then
     echo 1>&2 "This action requires you to have 'Java JRE' installed. You can download it for free at https://java.com"
@@ -34,7 +24,7 @@ if [ ! -d "openrefine" ]; then
     tar -xzf "$(basename $openrefine_URL)" -C openrefine --strip 1 --totals
     rm -f "$(basename $openrefine_URL)"
     sed -i '$ a JAVA_OPTIONS=-Drefine.headless=true' openrefine/refine.ini
-    sed -i 's/#REFINE_AUTOSAVE_PERIOD=1/REFINE_AUTOSAVE_PERIOD=180/' openrefine/refine.ini
+    sed -i 's/#REFINE_AUTOSAVE_PERIOD=60/REFINE_AUTOSAVE_PERIOD=1440/' openrefine/refine.ini
     sed -i 's/-Xms$REFINE_MIN_MEMORY/-Xms$REFINE_MEMORY/' openrefine/refine
     echo ""
 fi
@@ -43,10 +33,8 @@ fi
 if [ ! -d "openrefine-client" ]; then
     echo "Download OpenRefine client..."
     mkdir -p openrefine-client
-    wget -q $wget_opt $client_URL
-    echo "Install OpenRefine client in subdirectory openrefine-client..."
-    tar -xzf "$(basename $client_URL)" -C openrefine-client --strip 1 --totals
-    rm -f "$(basename $client_URL)"
+    wget -q -P openrefine-client $wget_opt $client_URL
+    chmod +x openrefine-client/openrefine-client_0-3-1_linux-64bit
     echo ""
 fi
 
@@ -223,7 +211,7 @@ if [ -n "$inputfiles" ]; then
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
         # run client with input command
-        openrefine-client/refine.py -P ${port} -c ${inputdir}/${inputfile} $inputformat "${inputoptions[@]}"
+        openrefine-client/openrefine-client_0-3-1_linux-64bit -P ${port} -c ${inputdir}/${inputfile} $inputformat "${inputoptions[@]}"
         # show allocated system resources
         ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
         memoryload+=($(ps --no-headers -o rss -p ${pid}))
@@ -254,7 +242,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
     
     # get project ids
     echo "get project ids..."
-    openrefine-client/refine.py -P ${port} -l > "${outputdir}/projects.tmp"
+    openrefine-client/openrefine-client_0-3-1_linux-64bit -P ${port} -l > "${outputdir}/projects.tmp"
     projectids=($(cat "${outputdir}/projects.tmp" | cut -c 2-14))
     projectnames=($(cat "${outputdir}/projects.tmp" | cut -c 17-))
     cat "${outputdir}/projects.tmp" && rm "${outputdir:?}/projects.tmp"
@@ -291,7 +279,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             for jsonfile in "${jsonfiles[@]}" ; do
                 echo "transform ${jsonfile}..."
                 # run client with apply command
-                openrefine-client/refine.py -P ${port} -f ${configdir}/${jsonfile} ${projectids[i]}
+                openrefine-client/openrefine-client_0-3-1_linux-64bit -P ${port} -f ${configdir}/${jsonfile} ${projectids[i]}
                 # allocated system resources
                 ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
                 memoryload+=($(ps --no-headers -o rss -p ${pid}))
@@ -323,7 +311,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             filename=${projectnames[i]%.*}
             echo "export to file ${filename}.tsv..."
             # run client with export command
-            openrefine-client/refine.py -P ${port} -E --output="${outputdir}/${filename}.tsv" ${projectids[i]}
+            openrefine-client/openrefine-client_0-3-1_linux-64bit -P ${port} -E --output="${outputdir}/${filename}.tsv" ${projectids[i]}
             # show allocated system resources
             ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
             memoryload+=($(ps --no-headers -o rss -p ${pid}))
