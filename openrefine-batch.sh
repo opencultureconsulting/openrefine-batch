@@ -1,9 +1,9 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.4, 2017-08-02
+# openrefine-batch.sh, Felix Lohmeier, v1.5, 2017-10-26
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
-openrefine_URL="https://github.com/felixlohmeier/OpenRefine/releases/download/2017-08-02/openrefine-linux-2017-08-02.tar.gz"
+openrefine_URL="https://github.com/felixlohmeier/OpenRefine/releases/download/2017-10-26%2Bpr1290/openrefine-linux-2017-10-26-pr1290.tar.gz"
 client_URL="https://github.com/felixlohmeier/openrefine-client/releases/download/v0.3.1/openrefine-client_0-3-1_linux-64bit"
 
 # check system requirements
