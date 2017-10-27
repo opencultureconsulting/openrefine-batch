@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.6, 2017-10-26
+# openrefine-batch.sh, Felix Lohmeier, v1.7, 2017-10-28
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
@@ -50,6 +50,7 @@ Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 
 == options ==
     -d CROSSDIR      path to directory with additional OpenRefine projects (will be copied to workspace before transformation step to support the cross function, cf. https://github.com/OpenRefine/OpenRefine/wiki/GREL-Other-Functions )
+    -e EXPORTFORMAT  (csv, tsv, html, xls, xlsx, ods)
     -f INPUTFORMAT   (csv, tsv, xml, json, line-based, fixed-width, xlsx, ods)
     -i INPUTOPTIONS  several options provided by openrefine-client, see below...
     -m RAM           maximum RAM for OpenRefine java heap space (default: 2048M)
@@ -104,9 +105,11 @@ port="3333"
 restartfile="true"
 restarttransform="true"
 export="true"
+exportformat="tsv"
 inputdir=/dev/null
 configdir=/dev/null
 crossdir=/dev/null
+
 
 # check input
 NUMARGS=$#
@@ -115,13 +118,14 @@ if [ "$NUMARGS" -eq 0 ]; then
 fi
 
 # get user input
-options="a:b:c:d:f:i:m:p:ERXh"
+options="a:b:c:d:e:f:i:m:p:ERXh"
 while getopts $options opt; do
    case $opt in
    a )  inputdir=$(readlink -f ${OPTARG}); if [ -n "${inputdir// }" ] ; then inputfiles=($(find -L "${inputdir}"/* -type f -printf "%f\n" 2>/dev/null)); fi ;;
    b )  configdir=$(readlink -f ${OPTARG}); if [ -n "${configdir// }" ] ; then jsonfiles=($(find -L "${configdir}"/* -type f -printf "%f\n" 2>/dev/null)); fi ;;
    c )  outputdir=$(readlink -m ${OPTARG}); mkdir -p "${outputdir}" ;;
    d )  crossdir=$(readlink -f ${OPTARG}); if [ -n "${crossdir// }" ] ; then crossprojects=($(find -L "${crossdir}"/* -maxdepth 0 -type d -printf "%f\n" 2>/dev/null)); fi ;;
+   e )  format="${OPTARG}" ; exportformat="${OPTARG}" ;;
    f )  format="${OPTARG}" ; inputformat="--format=${OPTARG}" ;;
    i )  inputoptions+=("--${OPTARG}") ;;
    m )  ram=${OPTARG} ;;
@@ -174,7 +178,8 @@ echo "Cross projects:          ${crossprojects[*]}"
 echo "OpenRefine heap space:   $ram"
 echo "OpenRefine port:         $port"
 echo "OpenRefine workspace:    $outputdir"
-echo "Export TSV to workspace: $export"
+echo "Export to workspace:     $export"
+echo "Export format:           $exportformat"
 echo "restart after file:      $restartfile"
 echo "restart after transform: $restarttransform"
 echo ""
@@ -309,9 +314,9 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             echo ""
             # get filename without extension
             filename=${projectnames[i]%.*}
-            echo "export to file ${filename}.tsv..."
+            echo "export to file ${filename}.${exportformat}..."
             # run client with export command
-            openrefine-client/openrefine-client_0-3-1_linux-64bit -P ${port} -E --output="${outputdir}/${filename}.tsv" ${projectids[i]}
+            openrefine-client/openrefine-client_0-3-1_linux-64bit -P ${port} -E --output="${outputdir}/${filename}.${exportformat}" ${projectids[i]}
             # show allocated system resources
             ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
             memoryload+=($(ps --no-headers -o rss -p ${pid}))
@@ -335,7 +340,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
     # list output files
     if [ "$export" = "true" ]; then
         echo "output (number of lines / size in bytes):"
-        wc -c -l "${outputdir}"/*.tsv
+        wc -c -l "${outputdir}"/*.${exportformat}
         echo ""
     fi
 fi
