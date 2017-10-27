@@ -78,8 +78,9 @@
     "description": "Split multi-valued cells in column Categories",
     "columnName": "Categories",
     "keyColumnName": "Record ID",
+    "mode": "separator",
     "separator": "|",
-    "mode": "plain"
+    "regex": false
   },
   {
     "op": "core/row-removal",
@@ -557,7 +558,8 @@
     "description": "Split multi-valued cells in column Categories",
     "columnName": "Categories",
     "keyColumnName": "Record ID",
+    "mode": "separator",
     "separator": ",",
-    "mode": "plain"
+    "regex": false
   }
 ]
