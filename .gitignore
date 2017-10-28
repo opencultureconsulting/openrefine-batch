@@ -1,6 +1,6 @@
-# downloaded program libraries
+# ignore downloaded program libraries
 openrefine
 openrefine-client
 
-# examples output directories
+# ignore output directories of examples
 examples/powerhouse-museum/output
