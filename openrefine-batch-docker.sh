@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.7, 2017-10-28
+# openrefine-batch-docker.sh, Felix Lohmeier, v1.8, 2017-10-28
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
@@ -59,6 +59,15 @@ Usage: sudo ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUT
 
 == example ==
 
+download example data
+
+wget https://github.com/opencultureconsulting/openrefine-batch/archive/master.zip
+unzip master.zip openrefine-batch-master/examples/*
+mv openrefine-batch-master/examples .
+rm -f master.zip
+
+execute openrefine-batch-docker.sh
+
 sudo ./openrefine-batch-docker.sh \
 -a examples/powerhouse-museum/input/ \
 -b examples/powerhouse-museum/config/ \
@@ -68,16 +77,13 @@ sudo ./openrefine-batch-docker.sh \
 -i guessCellValueTypes=true \
 -RX
 
-clone or download GitHub repository to get example data:
-https://github.com/felixlohmeier/openrefine-batch/archive/master.zip
-
 EOF
    exit 1
 }
 
 # defaults
 ram="2048M"
-version="2.7"
+version="dev"
 restartfile="true"
 restarttransform="true"
 export="true"

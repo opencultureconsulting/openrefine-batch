@@ -1,9 +1,9 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.7, 2017-10-28
+# openrefine-batch.sh, Felix Lohmeier, v1.8, 2017-10-28
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
-openrefine_URL="https://github.com/opencultureconsulting/openrefine-batch/raw/master/src/openrefine-linux-2017-10-26.tar.gz"
+openrefine_URL="https://github.com/opencultureconsulting/openrefine-batch/raw/master/src/openrefine-linux-2017-10-28.tar.gz"
 client_URL="https://github.com/opencultureconsulting/openrefine-batch/raw/master/src/openrefine-client_0-3-1_linux-64bit"
 
 # check system requirements
@@ -83,6 +83,15 @@ Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 
 == example ==
 
+download example data
+
+wget https://github.com/opencultureconsulting/openrefine-batch/archive/master.zip
+unzip master.zip openrefine-batch-master/examples/*
+mv openrefine-batch-master/examples .
+rm -f master.zip
+
+execute openrefine-batch.sh
+
 ./openrefine-batch.sh \
 -a examples/powerhouse-museum/input/ \
 -b examples/powerhouse-museum/config/ \
@@ -91,9 +100,6 @@ Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 -i processQuotes=false \
 -i guessCellValueTypes=true \
 -RX
-
-clone or download GitHub repository to get example data:
-https://github.com/felixlohmeier/openrefine-batch/archive/master.zip
 
 EOF
    exit 1
