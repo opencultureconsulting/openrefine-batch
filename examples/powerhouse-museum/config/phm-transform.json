@@ -74,6 +74,41 @@
     }
   },
   {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column Categories using expression grel:value.replace('||', '|')",
+    "engineConfig": {
+      "mode": "record-based",
+      "facets": [
+        {
+          "mode": "text",
+          "caseSensitive": false,
+          "query": "||",
+          "name": "Categories",
+          "type": "text",
+          "columnName": "Categories"
+        }
+      ]
+    },
+    "columnName": "Categories",
+    "expression": "grel:value.replace('||', '|')",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column Categories using expression grel:value.split('|').uniques().join('|')",
+    "engineConfig": {
+      "mode": "record-based",
+      "facets": []
+    },
+    "columnName": "Categories",
+    "expression": "grel:value.split('|').uniques().join('|')",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
     "op": "core/multivalued-cell-split",
     "description": "Split multi-valued cells in column Categories",
     "columnName": "Categories",
@@ -81,34 +116,6 @@
     "mode": "separator",
     "separator": "|",
     "regex": false
-  },
-  {
-    "op": "core/row-removal",
-    "description": "Remove rows",
-    "engineConfig": {
-      "mode": "row-based",
-      "facets": [
-        {
-          "omitError": false,
-          "expression": "isBlank(value)",
-          "selectBlank": false,
-          "invert": false,
-          "selectError": false,
-          "selection": [
-            {
-              "v": {
-                "v": true,
-                "l": "true"
-              }
-            }
-          ],
-          "name": "Categories",
-          "omitBlank": false,
-          "type": "list",
-          "columnName": "Categories"
-        }
-      ]
-    }
   },
   {
     "op": "core/mass-edit",
@@ -538,28 +545,6 @@
     "description": "Join multi-valued cells in column Categories",
     "columnName": "Categories",
     "keyColumnName": "Record ID",
-    "separator": ", "
-  },
-  {
-    "op": "core/text-transform",
-    "description": "Text transform on cells in column Categories using expression grel:value.split(\", \").uniques().join(\", \")",
-    "engineConfig": {
-      "mode": "record-based",
-      "facets": []
-    },
-    "columnName": "Categories",
-    "expression": "grel:value.split(\", \").uniques().join(\", \")",
-    "onError": "set-to-blank",
-    "repeat": false,
-    "repeatCount": 10
-  },
-  {
-    "op": "core/multivalued-cell-split",
-    "description": "Split multi-valued cells in column Categories",
-    "columnName": "Categories",
-    "keyColumnName": "Record ID",
-    "mode": "separator",
-    "separator": ",",
-    "regex": false
+    "separator": "|"
   }
 ]

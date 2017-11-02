@@ -75,7 +75,7 @@ execute openrefine-batch.sh
 ### Help Screen
 
 ```
-[11:36 felix ~/openrefine-batch]$ ./openrefine-batch.sh
+[23:10 felix ~/openrefine-batch]$ ./openrefine-batch.sh
 Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 
 == basic arguments ==
@@ -136,7 +136,7 @@ execute openrefine-batch.sh
 The script prints log messages from OpenRefine server and makes use of `ps` to show statistics for each step. Here is a sample:
 
 ```
-[11:36 felix ~/openrefine-batch]$ ./openrefine-batch.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX
+[23:10 felix ~/openrefine-batch]$ ./openrefine-batch.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX
 Download OpenRefine...
 openrefine-linux-2017-10-2 100%[=====================================>]  66,34M  5,62MB/s    in 12s     
 Install OpenRefine in subdirectory openrefine...
@@ -163,80 +163,80 @@ restart after transform: false
 
 === 1. Launch OpenRefine ===
 
-starting time: Sa 28. Okt 11:38:19 CEST 2017
+starting time: Do 2. Nov 23:10:38 CET 2017
 
 Starting OpenRefine at 'http://127.0.0.1:3333/'
 
-11:38:19.275 [            refine_server] Starting Server bound to '127.0.0.1:3333' (0ms)
-11:38:19.275 [            refine_server] refine.memory size: 2048M JVM Max heap: 2058354688 (0ms)
-11:38:19.281 [            refine_server] Initializing context: '/' from '/home/felix/openrefine-batch/openrefine/webapp' (6ms)
-11:38:19.478 [                   refine] Starting OpenRefine 2017-10-28 [TRUNK]... (197ms)
-11:38:19.484 [       FileProjectManager] Failed to load workspace from any attempted alternatives. (6ms)
-11:38:22.010 [                   refine] Running in headless mode (2526ms)
+23:10:38.887 [            refine_server] Starting Server bound to '127.0.0.1:3333' (0ms)
+23:10:38.887 [            refine_server] refine.memory size: 2048M JVM Max heap: 2058354688 (0ms)
+23:10:38.893 [            refine_server] Initializing context: '/' from '/home/felix/openrefine-batch/openrefine/webapp' (6ms)
+23:10:39.100 [                   refine] Starting OpenRefine 2017-10-28 [TRUNK]... (207ms)
+23:10:39.105 [       FileProjectManager] Failed to load workspace from any attempted alternatives. (5ms)
+23:10:41.616 [                   refine] Running in headless mode (2511ms)
 
 === 2. Import all files ===
 
-starting time: Sa 28. Okt 11:38:22 CEST 2017
+starting time: Do 2. Nov 23:10:41 CET 2017
 
 import phm-collection.tsv...
-11:38:22.479 [                   refine] POST /command/core/create-project-from-upload (469ms)
-New project: 1530205635037
-11:38:26.474 [                   refine] GET /command/core/get-rows (3995ms)
+23:10:42.057 [                   refine] POST /command/core/create-project-from-upload (441ms)
+New project: 1820134322107
+23:10:46.020 [                   refine] GET /command/core/get-rows (3963ms)
 Number of rows: 75814
  STARTED     ELAPSED %MEM %CPU   RSS
-11:38:18       00:07  5.8  214 946616
+23:10:37       00:08  5.8  186 951316
 
 === 3. Prepare transform & export ===
 
-starting time: Sa 28. Okt 11:38:26 CEST 2017
+starting time: Do 2. Nov 23:10:46 CET 2017
 
 get project ids...
-11:38:26.589 [                   refine] GET /command/core/get-all-project-metadata (115ms)
- 1530205635037: phm-collection.tsv
+23:10:46.146 [                   refine] GET /command/core/get-all-project-metadata (126ms)
+ 1820134322107: phm-collection.tsv
 
 === 4. Transform phm-collection.tsv ===
 
-starting time: Sa 28. Okt 11:38:26 CEST 2017
+starting time: Do 2. Nov 23:10:46 CET 2017
 
 transform phm-transform.json...
-11:38:26.684 [                   refine] GET /command/core/get-models (95ms)
-11:38:26.687 [                   refine] POST /command/core/apply-operations (3ms)
+23:10:46.243 [                   refine] GET /command/core/get-models (97ms)
+23:10:46.248 [                   refine] POST /command/core/apply-operations (5ms)
  STARTED     ELAPSED %MEM %CPU   RSS
-11:38:18       00:28  7.2  139 1169204
+23:10:37       00:22  7.1  143 1152200
 
 
 === 5. Export phm-collection.tsv ===
 
-starting time: Sa 28. Okt 11:38:47 CEST 2017
+starting time: Do 2. Nov 23:11:00 CET 2017
 
 export to file phm-collection.tsv...
-11:38:47.214 [                   refine] GET /command/core/get-models (20527ms)
-11:38:47.217 [                   refine] GET /command/core/get-all-project-metadata (3ms)
-11:38:47.221 [                   refine] POST /command/core/export-rows/phm-collection.tsv.tsv (4ms)
+23:11:00.168 [                   refine] GET /command/core/get-models (13920ms)
+23:11:00.171 [                   refine] GET /command/core/get-all-project-metadata (3ms)
+23:11:00.174 [                   refine] POST /command/core/export-rows/phm-collection.tsv.tsv (3ms)
  STARTED     ELAPSED %MEM %CPU   RSS
-11:38:18       00:50  7.2 81.2 1170760
+23:10:37       00:43  7.1 76.5 1152604
 
 
 output (number of lines / size in bytes):
-  167017 60619468 /home/felix/openrefine-batch/examples/powerhouse-museum/output/phm-collection.tsv
+   75728 59431272 /home/felix/openrefine-batch/examples/powerhouse-museum/output/phm-collection.tsv
 
 cleanup...
-11:39:12.562 [           ProjectManager] Saving all modified projects ... (25341ms)
-11:39:15.953 [        project_utilities] Saved project '1530205635037' (3391ms)
+23:11:24.461 [           ProjectManager] Saving all modified projects ... (24287ms)
+23:11:27.520 [        project_utilities] Saved project '1820134322107' (3059ms)
 
 === Statistics ===
 
 starting time and run time of each step:
-                      Start process Sa 28. Okt 11:38:19 CEST 2017 (00:00:00)
-                  Launch OpenRefine Sa 28. Okt 11:38:19 CEST 2017 (00:00:03)
-                   Import all files Sa 28. Okt 11:38:22 CEST 2017 (00:00:04)
-         Prepare transform & export Sa 28. Okt 11:38:26 CEST 2017 (00:00:00)
-       Transform phm-collection.tsv Sa 28. Okt 11:38:26 CEST 2017 (00:00:21)
-          Export phm-collection.tsv Sa 28. Okt 11:38:47 CEST 2017 (00:00:30)
-                        End process Sa 28. Okt 11:39:17 CEST 2017 (00:00:00)
+                      Start process Do 2. Nov 23:10:38 CET 2017 (00:00:00)
+                  Launch OpenRefine Do 2. Nov 23:10:38 CET 2017 (00:00:03)
+                   Import all files Do 2. Nov 23:10:41 CET 2017 (00:00:05)
+         Prepare transform & export Do 2. Nov 23:10:46 CET 2017 (00:00:00)
+       Transform phm-collection.tsv Do 2. Nov 23:10:46 CET 2017 (00:00:14)
+          Export phm-collection.tsv Do 2. Nov 23:11:00 CET 2017 (00:00:28)
+                        End process Do 2. Nov 23:11:28 CET 2017 (00:00:00)
 
-total run time: 00:00:58 (hh:mm:ss)
-highest memory load: 1143 MB
+total run time: 00:00:50 (hh:mm:ss)
+highest memory load: 1125 MB
 ```
 
 ### Performance gain with extended cross function
