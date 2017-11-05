@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.9, 2017-11-05
+# openrefine-batch.sh, Felix Lohmeier, v1.10, 2017-11-05
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
@@ -153,6 +153,10 @@ if [ -z "$outputdir" ]; then
     echo 1>&2 "example: ./openrefine-batch.sh -c output/"
     exit 1
 fi
+if [ "$(ls -A "$outputdir" 2>/dev/null)" ];then
+    echo 1>&2 "path to directory for exported files (and OpenRefine workspace) is not empty"
+    exit 1
+fi
 if [ "$format" = "xml" ] || [ "$format" = "json" ] && [ -z "$inputoptions" ]; then
     echo 1>&2 "error: you specified the inputformat $format but did not provide mandatory input options"
     echo 1>&2 "please provide recordpath in multiple arguments without slashes"
@@ -195,6 +199,21 @@ checkpoints=${#checkpointdate[@]}
 checkpointdate[$((checkpoints + 1))]=$(date +%s)
 checkpointname[$((checkpoints + 1))]="Start process"
 memoryload=()
+
+# safe cleanup handler
+cleanup()
+{
+  echo ""
+  echo "cleanup..."
+  kill ${pid}
+  wait
+  rm -r -f "${outputdir:?}"/workspace*.json
+  # delete duplicates from copied projects
+  if [ -n "$crossprojects" ]; then
+      for i in "${crossprojects[@]}" ; do rm -r -f "${outputdir}/${i}" ; done
+  fi
+}
+trap cleanup EXIT
 
 # launch server
 checkpoints=${#checkpointdate[@]}
@@ -350,17 +369,6 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         echo ""
     fi
 fi
-
-# cleanup
-echo "cleanup..."
-kill ${pid}
-wait
-rm -r -f "${outputdir:?}"/workspace*.json
-# delete duplicates from copied projects
-if [ -n "$crossprojects" ]; then
-    for i in "${crossprojects[@]}" ; do rm -r -f "${outputdir}/${i}" ; done
-fi
-echo ""
 
 # calculate and print checkpoints
 echo "=== Statistics ==="
