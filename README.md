@@ -268,7 +268,7 @@ mkdir input
 cp INPUTFILES input/
 mkdir config
 cp CONFIGFILES config/
-sudo ./openrefine-batch-docker.sh input/ config/ OUTPUT/
+sudo ./openrefine-batch-docker.sh -a input/ -b config/ -c OUTPUT/
 ```
 
 Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon by using `sudo`. If you created a Docker group in [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) then you may call the script without `sudo`.
