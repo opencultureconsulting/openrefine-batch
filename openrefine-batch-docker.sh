@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch-docker.sh, Felix Lohmeier, v1.8, 2017-10-28
+# openrefine-batch-docker.sh, Felix Lohmeier, v1.9, 2017-11-05
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
@@ -169,17 +169,17 @@ echo ""
 
 # declare additional variables
 checkpoints=${#checkpointdate[@]}
-checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-checkpointname[$(($checkpoints + 1))]="Start process"
+checkpointdate[$((checkpoints + 1))]=$(date +%s)
+checkpointname[$((checkpoints + 1))]="Start process"
 memoryload=()
 
 # launch server
 checkpoints=${#checkpointdate[@]}
-checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-checkpointname[$(($checkpoints + 1))]="Launch OpenRefine"
-echo "=== $checkpoints. ${checkpointname[$(($checkpoints + 1))]} ==="
+checkpointdate[$((checkpoints + 1))]=$(date +%s)
+checkpointname[$((checkpoints + 1))]="Launch OpenRefine"
+echo "=== $checkpoints. ${checkpointname[$((checkpoints + 1))]} ==="
 echo ""
-echo "starting time: $(date --date=@${checkpointdate[$(($checkpoints + 1))]})"
+echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
 echo ""
 sudo docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
 # wait until server is available
@@ -191,11 +191,11 @@ echo ""
 # import all files
 if [ -n "$inputfiles" ]; then
     checkpoints=${#checkpointdate[@]}
-    checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-    checkpointname[$(($checkpoints + 1))]="Import all files"
-    echo "=== $checkpoints. ${checkpointname[$(($checkpoints + 1))]} ==="
+    checkpointdate[$((checkpoints + 1))]=$(date +%s)
+    checkpointname[$((checkpoints + 1))]="Import all files"
+    echo "=== $checkpoints. ${checkpointname[$((checkpoints + 1))]} ==="
     echo ""
-    echo "starting time: $(date --date=@${checkpointdate[$(($checkpoints + 1))]})"
+    echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
     echo ""
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
@@ -221,18 +221,18 @@ fi
 # transform and export files
 if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
     checkpoints=${#checkpointdate[@]}
-    checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-    checkpointname[$(($checkpoints + 1))]="Prepare transform & export"
-    echo "=== $checkpoints. ${checkpointname[$(($checkpoints + 1))]} ==="
+    checkpointdate[$((checkpoints + 1))]=$(date +%s)
+    checkpointname[$((checkpoints + 1))]="Prepare transform & export"
+    echo "=== $checkpoints. ${checkpointname[$((checkpoints + 1))]} ==="
     echo ""
-    echo "starting time: $(date --date=@${checkpointdate[$(($checkpoints + 1))]})"
+    echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
     echo ""
     
     # get project ids
     echo "get project ids..."
     sudo docker run --rm --link ${uuid} felixlohmeier/openrefine-client -H ${uuid} -l > "${outputdir}/projects.tmp"
-    projectids=($(cat "${outputdir}/projects.tmp" | cut -c 2-14))
-    projectnames=($(cat "${outputdir}/projects.tmp" | cut -c 17-))
+    projectids=($(cut -c 2-14 "${outputdir}/projects.tmp"))
+    projectnames=($(cut -c 17- "${outputdir}/projects.tmp"))
     cat "${outputdir}/projects.tmp" && rm "${outputdir:?}/projects.tmp"
     echo ""
     
@@ -257,11 +257,11 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         # apply transformation rules
         if [ -n "$jsonfiles" ]; then
             checkpoints=${#checkpointdate[@]}
-            checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-            checkpointname[$(($checkpoints + 1))]="Transform ${projectnames[i]}"
-            echo "=== $checkpoints. ${checkpointname[$(($checkpoints + 1))]} ==="
+            checkpointdate[$((checkpoints + 1))]=$(date +%s)
+            checkpointname[$((checkpoints + 1))]="Transform ${projectnames[i]}"
+            echo "=== $checkpoints. ${checkpointname[$((checkpoints + 1))]} ==="
             echo ""
-            echo "starting time: $(date --date=@${checkpointdate[$(($checkpoints + 1))]})"
+            echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
             echo ""
             for jsonfile in "${jsonfiles[@]}" ; do
                 echo "transform ${jsonfile}..."
@@ -287,11 +287,11 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         # export project to workspace
         if [ "$export" = "true" ]; then
             checkpoints=${#checkpointdate[@]}
-            checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-            checkpointname[$(($checkpoints + 1))]="Export ${projectnames[i]}"
-            echo "=== $checkpoints. ${checkpointname[$(($checkpoints + 1))]} ==="
+            checkpointdate[$((checkpoints + 1))]=$(date +%s)
+            checkpointname[$((checkpoints + 1))]="Export ${projectnames[i]}"
+            echo "=== $checkpoints. ${checkpointname[$((checkpoints + 1))]} ==="
             echo ""
-            echo "starting time: $(date --date=@${checkpointdate[$(($checkpoints + 1))]})"
+            echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
             echo ""
             # get filename without extension
             filename=${projectnames[i]%.*}
@@ -340,11 +340,11 @@ echo ""
 echo "=== Statistics ==="
 echo ""
 checkpoints=${#checkpointdate[@]}
-checkpointdate[$(($checkpoints + 1))]=$(date +%s)
-checkpointname[$(($checkpoints + 1))]="End process"
+checkpointdate[$((checkpoints + 1))]=$(date +%s)
+checkpointname[$((checkpoints + 1))]="End process"
 echo "starting time and run time of each step:"
 checkpoints=${#checkpointdate[@]}
-checkpointdate[$(($checkpoints + 1))]=$(date +%s)
+checkpointdate[$((checkpoints + 1))]=$(date +%s)
 for i in $(seq 1 $checkpoints); do
     diffsec="$((${checkpointdate[$(($i + 1))]} - ${checkpointdate[$i]}))"
     printf "%35s $(date --date=@${checkpointdate[$i]}) ($(date -d@${diffsec} -u +%H:%M:%S))\n" "${checkpointname[$i]}"
