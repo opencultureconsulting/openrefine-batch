@@ -120,7 +120,7 @@ while getopts $options opt; do
    *  ) echo 1>&2 "Unimplemented option: -$OPTARG"; usage; exit 1;;
    esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 # check for mandatory options
 if [ -z "$outputdir" ]; then
@@ -346,11 +346,11 @@ echo "starting time and run time of each step:"
 checkpoints=${#checkpointdate[@]}
 checkpointdate[$((checkpoints + 1))]=$(date +%s)
 for i in $(seq 1 $checkpoints); do
-    diffsec="$((${checkpointdate[$(($i + 1))]} - ${checkpointdate[$i]}))"
+    diffsec="$((${checkpointdate[$((i + 1))]} - ${checkpointdate[$i]}))"
     printf "%35s $(date --date=@${checkpointdate[$i]}) ($(date -d@${diffsec} -u +%H:%M:%S))\n" "${checkpointname[$i]}"
 done
 echo ""
-diffsec="$((${checkpointdate[$checkpoints]} - ${checkpointdate[1]}))"
+diffsec="$((checkpointdate[$checkpoints] - checkpointdate[1]))"
 echo "total run time: $(date -d@${diffsec} -u +%H:%M:%S) (hh:mm:ss)"
 
 # calculate and print memory load
@@ -358,4 +358,4 @@ max=${memoryload[0]}
 for n in "${memoryload[@]}" ; do
     ((n > max)) && max=$n
 done
-echo "highest memory load: $(($max / 1024)) MB"
+echo "highest memory load: $((max / 1024)) MB"

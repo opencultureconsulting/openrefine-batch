@@ -145,7 +145,7 @@ while getopts $options opt; do
    *  ) echo 1>&2 "Unimplemented option: -$OPTARG"; usage; exit 1;;
    esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 # check for mandatory options
 if [ -z "$outputdir" ]; then
@@ -376,7 +376,7 @@ for i in $(seq 1 $checkpoints); do
     printf "%35s $(date --date=@${checkpointdate[$i]}) ($(date -d@${diffsec} -u +%H:%M:%S))\n" "${checkpointname[$i]}"
 done
 echo ""
-diffsec="$((${checkpointdate[$checkpoints]} - ${checkpointdate[1]}))"
+diffsec="$((checkpointdate[$checkpoints] - checkpointdate[1]))"
 echo "total run time: $(date -d@${diffsec} -u +%H:%M:%S) (hh:mm:ss)"
 
 # calculate and print memory load
