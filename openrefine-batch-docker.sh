@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch-docker.sh, Felix Lohmeier, v1.10, 2017-11-05
+# openrefine-batch-docker.sh, Felix Lohmeier, v1.10, 2017-11-07
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
@@ -130,6 +130,7 @@ if [ -z "$outputdir" ]; then
 fi
 if [ "$(ls -A "$outputdir" 2>/dev/null)" ];then
     echo 1>&2 "path to directory for exported files (and OpenRefine workspace) is not empty"
+    echo 1>&2 "$outputdir"
     exit 1
 fi
 if [ "$format" = "xml" ] || [ "$format" = "json" ] && [ -z "$inputoptions" ]; then
@@ -180,7 +181,6 @@ memoryload=()
 # safe cleanup handler
 cleanup()
 {
-  echo ""
   echo "cleanup..."
   docker stop -t=5000 ${uuid}
   docker rm ${uuid}
@@ -190,7 +190,7 @@ cleanup()
       for i in "${crossprojects[@]}" ; do rm -r -f "${outputdir}/${i}" ; done
   fi
 }
-trap cleanup EXIT
+trap "cleanup;exit" SIGHUP SIGINT SIGQUIT SIGTERM
 
 # launch server
 checkpoints=${#checkpointdate[@]}
@@ -343,6 +343,10 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         echo ""
     fi
 fi
+
+# run cleanup function
+cleanup
+echo ""
 
 # calculate and print checkpoints
 echo "=== Statistics ==="
