@@ -90,33 +90,46 @@ Usage: ./openrefine-batch.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
     -i INPUTOPTIONS  several options provided by openrefine-client, see below...
     -m RAM           maximum RAM for OpenRefine java heap space (default: 2048M)
     -p PORT          PORT on which OpenRefine should listen (default: 3333)
+    -t TEMPLATING    several options for templating export, see below...
     -E               do NOT export files
     -R               do NOT restart OpenRefine after each transformation (e.g. config file)
     -X               do NOT restart OpenRefine after each project (e.g. input file)
     -h               displays this help screen
 
 == inputoptions (mandatory for xml, json, fixed-width, xslx, ods) ==
-    -i recordPath=RECORDPATH (xml, json): please provide path in multiple arguments without slashes, e.g. /collection/record/ should be entered like this: --recordPath=collection --recordPath=record
+    -i recordPath=RECORDPATH (xml, json): please provide path in multiple arguments without slashes, e.g. /collection/record/ should be entered like this: -i recordPath=collection -i recordPath=record, default xml: record, default json: _ _
     -i columnWidths=COLUMNWIDTHS (fixed-width): please provide widths separated by comma (e.g. 7,5)
-    -i sheets=SHEETS (xlsx, ods): please provide sheets separated by comma (e.g. 0,1), default: 0 (first sheet)
+    -i sheets=SHEETS (xls, xlsx, ods): please provide sheets separated by comma (e.g. 0,1), default: 0 (first sheet)
 
 == more inputoptions (optional, only together with inputformat) ==
-    -i projectName=PROJECTNAME (all formats)
+    -i projectName=PROJECTNAME (all formats), default: filename
     -i limit=LIMIT (all formats), default: -1
-    -i includeFileSources=INCLUDEFILESOURCES (all formats), default: false
-    -i trimStrings=TRIMSTRINGS (xml, json), default: false
-    -i storeEmptyStrings=STOREEMPTYSTRINGS (xml, json), default: true
-    -i guessCellValueTypes=GUESSCELLVALUETYPES (xml, csv, tsv, fixed-width, json), default: false
+    -i includeFileSources=true/false (all formats), default: false
+    -i trimStrings=true/false (xml, json), default: false
+    -i storeEmptyStrings=true/false (xml, json), default: true
+    -i guessCellValueTypes=true/false (xml, csv, tsv, fixed-width, json), default: false
     -i encoding=ENCODING (csv, tsv, line-based, fixed-width), please provide short encoding name (e.g. UTF-8)
-    -i ignoreLines=IGNORELINES (csv, tsv, line-based, fixed-width, xlsx, ods), default: -1
-    -i headerLines=HEADERLINES (csv, tsv, fixed-width, xlsx, ods), default: 1
-    -i skipDataLines=SKIPDATALINES (csv, tsv, line-based, fixed-width, xlsx, ods), default: 0
-    -i storeBlankRows=STOREBLANKROWS (csv, tsv, line-based, fixed-width, xlsx, ods), default: true
-    -i processQuotes=PROCESSQUOTES (csv, tsv), default: true
-    -i storeBlankCellsAsNulls=STOREBLANKCELLSASNULLS (csv, tsv, line-based, fixed-width, xlsx, ods), default: true
+    -i ignoreLines=IGNORELINES (csv, tsv, line-based, fixed-width, xls, xlsx, ods), default: -1
+    -i headerLines=HEADERLINES (csv, tsv, fixed-width, xls, xlsx, ods), default: 1, default fixed-width: 0
+    -i skipDataLines=true/false (csv, tsv, line-based, fixed-width, xls, xlsx, ods), default: 0, default line-based: -1
+    -i storeBlankRows=true/false (csv, tsv, line-based, fixed-width, xls, xlsx, ods), default: true
+    -i processQuotes=true/false (csv, tsv), default: true
+    -i storeBlankCellsAsNulls=true/false (csv, tsv, line-based, fixed-width, xls, xlsx, ods), default: true
     -i linesPerRow=LINESPERROW (line-based), default: 1
 
-== example ==
+== templating options (alternative exportformat) ==
+    -t template=TEMPLATE (mandatory; (big) text string that you enter in the *row template* textfield in the export/templating menu in the browser app)
+    -t mode=row-based/record-based (engine mode, default: row-based)
+    -t prefix=PREFIX (text string that you enter in the *prefix* textfield in the browser app)
+    -t rowSeparator=ROWSEPARATOR (text string that you enter in the *row separator* textfield in the browser app)
+    -t suffix=SUFFIX (text string that you enter in the *suffix* textfield in the browser app)
+    -t filterQuery=REGEX (Simple RegEx text filter on filterColumn, e.g. ^12015$)
+    -t filterColumn=COLUMNNAME (column name for filterQuery, default: name of first column)
+    -t facets=FACETS (facets config in json format, may be extracted with browser dev tools in browser app)
+    -t splitToFiles=true/false (will split each row/record into a single file; it specifies a presumably unique character series for splitting; prefix and suffix will be applied to all files
+    -t suffixById=true/false (enhancement option for splitToFiles; will generate filename-suffix from values in key column)
+
+== examples ==
 
 download example data
 
@@ -125,10 +138,13 @@ unzip master.zip openrefine-batch-master/examples/*
 mv openrefine-batch-master/examples .
 rm -f master.zip
 
-execute openrefine-batch.sh
+example 1 (input, transform, export to tsv)
 
 ./openrefine-batch.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX
 
+example 2 (input, transform, templating export)
+
+./openrefine-batch.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX -t template='{ "Record ID" : {{jsonize(cells["Record ID"].value)}}, "Object Title" : {{jsonize(cells["Object Title"].value)}}, "Registration Number" : {{jsonize(cells["Registration Number"].value)}}, "Description." : {{jsonize(cells["Description."].value)}}, "Marks" : {{jsonize(cells["Marks"].value)}}, "Production Date" : {{jsonize(cells["Production Date"].value)}}, "Provenance (Production)" : {{jsonize(cells["Provenance (Production)"].value)}}, "Provenance (History)" : {{jsonize(cells["Provenance (History)"].value)}}, "Categories" : {{jsonize(cells["Categories"].value)}}, "Persistent Link" : {{jsonize(cells["Persistent Link"].value)}}, "Height" : {{jsonize(cells["Height"].value)}}, "Width" : {{jsonize(cells["Width"].value)}}, "Depth" : {{jsonize(cells["Depth"].value)}}, "Diameter" : {{jsonize(cells["Diameter"].value)}}, "Weight" : {{jsonize(cells["Weight"].value)}}, "License info" : {{jsonize(cells["License info"].value)}} }' -t rowSeparator=',' -t prefix='{ "rows" : [ ' -t suffix='] }' -t splitToFiles=true
 ```
 
 ### Logging
