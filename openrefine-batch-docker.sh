@@ -1,23 +1,32 @@
 #!/bin/bash
-# openrefine-batch-docker.sh, Felix Lohmeier, v1.12, 2019-07-29
+# openrefine-batch-docker.sh, Felix Lohmeier, v1.13, 2019-08-06
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
-DOCKER="$(which docker 2> /dev/null)"
+DOCKER="$(command -v docker 2> /dev/null)"
 if [ -z "$DOCKER" ] ; then
     echo 1>&2 "This action requires you to have 'docker' installed and present in your PATH. You can download it for free at http://www.docker.com/"
     exit 1
 fi
 DOCKERINFO="$(docker info 2>/dev/null | grep 'Server Version')"
-if [ -z "$DOCKERINFO" ] ; then
-    echo 1>&2 "This action requires you to start the docker daemon. Try 'sudo systemctl start docker' or 'sudo start docker'. If the docker daemon is already running then maybe some security privileges are missing to run docker commands. Try to run the script with 'sudo ./openrefine-batch-docker.sh ...'"
-    exit 1
+if [ -z "$DOCKERINFO" ]
+then
+    echo "command 'docker info' failed, trying again with sudo..."
+    DOCKERINFO="$(sudo docker info 2>/dev/null | grep 'Server Version')"
+    echo "OK"
+    docker=(sudo docker)
+    if [ -z "$DOCKERINFO" ] ; then
+        echo 1>&2 "This action requires you to start the docker daemon. Try 'sudo systemctl start docker' or 'sudo start docker'. If the docker daemon is already running then maybe some security privileges are missing to run docker commands.'"
+        exit 1
+    fi
+else
+    docker=(docker)
 fi
 
 # help screen
 function usage () {
     cat <<EOF
-Usage: sudo ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
+Usage: ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDIR] ...
 
 == basic arguments ==
     -a INPUTDIR      path to directory with source files (leave empty to transform only ; multiple files may be imported into a single project by providing a zip or tar.gz archive, cf. https://github.com/OpenRefine/OpenRefine/wiki/Importers )
@@ -81,7 +90,7 @@ rm -f master.zip
 
 example 1 (input, transform, export to tsv)
 
-sudo ./openrefine-batch-docker.sh \
+./openrefine-batch-docker.sh \
 -a examples/powerhouse-museum/input/ \
 -b examples/powerhouse-museum/config/ \
 -c examples/powerhouse-museum/output/ \
@@ -92,7 +101,7 @@ sudo ./openrefine-batch-docker.sh \
 
 example 2 (input, transform, templating export)
 
-sudo ./openrefine-batch-docker.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX -t template='{ "Record ID" : {{jsonize(cells["Record ID"].value)}}, "Object Title" : {{jsonize(cells["Object Title"].value)}}, "Registration Number" : {{jsonize(cells["Registration Number"].value)}}, "Description." : {{jsonize(cells["Description."].value)}}, "Marks" : {{jsonize(cells["Marks"].value)}}, "Production Date" : {{jsonize(cells["Production Date"].value)}}, "Provenance (Production)" : {{jsonize(cells["Provenance (Production)"].value)}}, "Provenance (History)" : {{jsonize(cells["Provenance (History)"].value)}}, "Categories" : {{jsonize(cells["Categories"].value)}}, "Persistent Link" : {{jsonize(cells["Persistent Link"].value)}}, "Height" : {{jsonize(cells["Height"].value)}}, "Width" : {{jsonize(cells["Width"].value)}}, "Depth" : {{jsonize(cells["Depth"].value)}}, "Diameter" : {{jsonize(cells["Diameter"].value)}}, "Weight" : {{jsonize(cells["Weight"].value)}}, "License info" : {{jsonize(cells["License info"].value)}} }' -t rowSeparator=',' -t prefix='{ "rows" : [ ' -t suffix='] }' -t splitToFiles=true
+./openrefine-batch-docker.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX -t template='{ "Record ID" : {{jsonize(cells["Record ID"].value)}}, "Object Title" : {{jsonize(cells["Object Title"].value)}}, "Registration Number" : {{jsonize(cells["Registration Number"].value)}}, "Description." : {{jsonize(cells["Description."].value)}}, "Marks" : {{jsonize(cells["Marks"].value)}}, "Production Date" : {{jsonize(cells["Production Date"].value)}}, "Provenance (Production)" : {{jsonize(cells["Provenance (Production)"].value)}}, "Provenance (History)" : {{jsonize(cells["Provenance (History)"].value)}}, "Categories" : {{jsonize(cells["Categories"].value)}}, "Persistent Link" : {{jsonize(cells["Persistent Link"].value)}}, "Height" : {{jsonize(cells["Height"].value)}}, "Width" : {{jsonize(cells["Width"].value)}}, "Depth" : {{jsonize(cells["Depth"].value)}}, "Diameter" : {{jsonize(cells["Diameter"].value)}}, "Weight" : {{jsonize(cells["Weight"].value)}}, "License info" : {{jsonize(cells["License info"].value)}} }' -t rowSeparator=',' -t prefix='{ "rows" : [ ' -t suffix='] }' -t splitToFiles=true
 EOF
    exit 1
 }
@@ -200,8 +209,8 @@ memoryload=()
 cleanup()
 {
   echo "cleanup..."
-  docker stop -t=5000 ${uuid}
-  docker rm ${uuid}
+  ${docker[*]} stop -t=5000 ${uuid}
+  ${docker[*]} rm ${uuid}
   rm -r -f "${outputdir:?}"/workspace*.json
   # delete duplicates from copied projects
   if [ -n "$crossprojects" ]; then
@@ -218,11 +227,11 @@ echo "=== $checkpoints. ${checkpointname[$((checkpoints + 1))]} ==="
 echo ""
 echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
 echo ""
-sudo docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
 # wait until server is available
-until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
 # show server logs
-docker attach ${uuid} &
+${docker[*]} attach ${uuid} &
 echo ""
 
 # import all files
@@ -237,7 +246,7 @@ if [ -n "$inputfiles" ]; then
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
         # run client with input command
-        sudo docker run --rm --link ${uuid} -v ${inputdir}:/data:z felixlohmeier/openrefine-client -H ${uuid} -c $inputfile $inputformat ${inputoptions[@]}
+        ${docker[*]} run --rm --link ${uuid} -v ${inputdir}:/data:z felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -c $inputfile $inputformat ${inputoptions[@]}
         # show allocated system resources
         ps -o start,etime,%mem,%cpu,rss -C java --sort=start
         memoryload+=($(ps --no-headers -o rss -C java))
@@ -245,11 +254,11 @@ if [ -n "$inputfiles" ]; then
         # restart server to clear memory
         if [ "$restartfile" = "true" ]; then
             echo "save project and restart OpenRefine server..." 
-            docker stop -t=5000 ${uuid}
-            docker rm ${uuid}
-            sudo docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-            until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-            docker attach ${uuid} &
+            ${docker[*]} stop -t=5000 ${uuid}
+            ${docker[*]} rm ${uuid}
+            ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+            until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+            ${docker[*]} attach ${uuid} &
             echo ""
         fi
     done
@@ -267,7 +276,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
     
     # get project ids
     echo "get project ids..."
-    sudo docker run --rm --link ${uuid} felixlohmeier/openrefine-client -H ${uuid} -l > "${outputdir}/projects.tmp"
+    ${docker[*]} run --rm --link ${uuid} felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -l > "${outputdir}/projects.tmp"
     projectids=($(cut -c 2-14 "${outputdir}/projects.tmp"))
     projectnames=($(cut -c 17- "${outputdir}/projects.tmp"))
     cat "${outputdir}/projects.tmp" && rm "${outputdir:?}/projects.tmp"
@@ -280,11 +289,11 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         rsync -a --exclude='*.project/history' "${crossdir}"/*.project "${outputdir}"
         # restart server to advertise copied projects
         echo "restart OpenRefine server to advertise copied projects..." 
-        docker stop -t=5000 ${uuid}
-        docker rm ${uuid}
-        sudo docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-        until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-        docker attach ${uuid} &
+        ${docker[*]} stop -t=5000 ${uuid}
+        ${docker[*]} rm ${uuid}
+        ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+        until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+        ${docker[*]} attach ${uuid} &
         echo ""
     fi
     
@@ -303,7 +312,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             for jsonfile in "${jsonfiles[@]}" ; do
                 echo "transform ${jsonfile}..."
                 # run client with apply command
-                sudo docker run --rm --link ${uuid} -v ${configdir}:/data:z felixlohmeier/openrefine-client -H ${uuid} -f ${jsonfile} ${projectids[i]}
+                ${docker[*]} run --rm --link ${uuid} -v ${configdir}:/data:z felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -f ${jsonfile} ${projectids[i]}
                 # allocated system resources
                 ps -o start,etime,%mem,%cpu,rss -C java --sort=start
 	        memoryload+=($(ps --no-headers -o rss -C java))
@@ -311,11 +320,11 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
                 # restart server to clear memory
                 if [ "$restarttransform" = "true" ]; then
                   echo "save project and restart OpenRefine server..." 
-                  docker stop -t=5000 ${uuid}
-                  docker rm ${uuid}
-                  sudo docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-                  until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-                  docker attach ${uuid} &
+                  ${docker[*]} stop -t=5000 ${uuid}
+                  ${docker[*]} rm ${uuid}
+                  ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+                  until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+                  ${docker[*]} attach ${uuid} &
                 fi
                 echo ""
             done
@@ -334,7 +343,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             filename=${projectnames[i]%.*}
             echo "export to file ${filename}.${exportformat}..."
             # run client with export command
-            sudo docker run --rm --link ${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine-client -H ${uuid} -E --output="${filename}.${exportformat}" "${templating[@]}" ${projectids[i]}
+            ${docker[*]} run --rm --link ${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -E --output="${filename}.${exportformat}" "${templating[@]}" ${projectids[i]}
             # show allocated system resources
             ps -o start,etime,%mem,%cpu,rss -C java --sort=start
             memoryload+=($(ps --no-headers -o rss -C java))
@@ -344,11 +353,11 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         # restart server to clear memory
         if [ "$restartfile" = "true" ]; then    
               echo "restart OpenRefine server..." 
-              docker stop -t=5000 ${uuid}
-              docker rm ${uuid}
-              sudo docker run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-              until sudo docker run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
-              docker attach ${uuid} &
+              ${docker[*]} stop -t=5000 ${uuid}
+              ${docker[*]} rm ${uuid}
+              ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
+              until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+              ${docker[*]} attach ${uuid} &
         fi
         echo ""        
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.12, 2019-07-29
+# openrefine-batch.sh, Felix Lohmeier, v1.13, 2019-08-06
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client

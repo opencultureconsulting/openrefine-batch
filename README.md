@@ -19,7 +19,11 @@ If you prefer a containerized approach, see a [variation of this script for Dock
 
 ### Install
 
-Download the script and grant file permissions to execute: `wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch.sh && chmod +x openrefine-batch.sh`
+Download the script and grant file permissions to execute:
+```
+wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch.sh
+chmod +x openrefine-batch.sh
+```
 
 That's all. The script will automatically download copies of OpenRefine and the python client on first run and will tell you if something (python, java) is missing.
 
@@ -288,8 +292,14 @@ A variation of the shell script orchestrates a [docker container for OpenRefine]
 
 **Install**
 
-1. Install [Docker](https://docs.docker.com/engine/installation/#on-linux) and **a)** [configure Docker to start on boot](https://docs.docker.com/engine/installation/linux/linux-postinstall/#configure-docker-to-start-on-boot) or **b)** start Docker on demand each time you use the script: `sudo systemctl start docker`
-2. Download the script and grant file permissions to execute: `wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch-docker.sh && chmod +x openrefine-batch-docker.sh`
+1. Install [Docker](https://docs.docker.com/engine/installation/#on-linux)
+  * **a)** [configure Docker to start on boot](https://docs.docker.com/engine/installation/linux/linux-postinstall/#configure-docker-to-start-on-boot)
+  * or **b)** start Docker on demand each time you use the script: `sudo systemctl start docker`
+2. Download the script and grant file permissions to execute:
+```
+wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch-docker.sh
+chmod +x openrefine-batch-docker.sh
+```
 
 **Usage**
 
@@ -298,10 +308,36 @@ mkdir input
 cp INPUTFILES input/
 mkdir config
 cp CONFIGFILES config/
-sudo ./openrefine-batch-docker.sh -a input/ -b config/ -c OUTPUT/
+./openrefine-batch-docker.sh -a input/ -b config/ -c OUTPUT/
 ```
 
-Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon by using `sudo`. If you created a Docker group in [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) then you may call the script without `sudo`.
+The script may ask you for sudo privileges. Why `sudo`? Non-root users can only access the Unix socket of the Docker daemon by using `sudo`. If you created a Docker group in [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) then you may call the script without `sudo`.
+
+**Example**
+
+[Example Powerhouse Museum](examples/powerhouse-museum)
+
+download example data
+
+```
+wget https://github.com/opencultureconsulting/openrefine-batch/archive/master.zip
+unzip master.zip openrefine-batch-master/examples/*
+mv openrefine-batch-master/examples .
+rm -f master.zip
+```
+
+execute openrefine-batch-docker.sh
+
+```
+./openrefine-batch-docker.sh \
+-a examples/powerhouse-museum/input/ \
+-b examples/powerhouse-museum/config/ \
+-c examples/powerhouse-museum/output/ \
+-f tsv \
+-i processQuotes=false \
+-i guessCellValueTypes=true \
+-RX
+```
 
 ### Todo
 
