@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch-docker.sh, Felix Lohmeier, v1.13, 2019-08-06
+# openrefine-batch-docker.sh, Felix Lohmeier, v1.14, 2020-08-08
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
