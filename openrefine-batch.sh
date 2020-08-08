@@ -1,10 +1,10 @@
 #!/bin/bash
-# openrefine-batch.sh, Felix Lohmeier, v1.13, 2019-08-06
+# openrefine-batch.sh, Felix Lohmeier, v1.14, 2020-08-08
 # https://github.com/felixlohmeier/openrefine-batch
 
 # declare download URLs for OpenRefine and OpenRefine client
 openrefine_URL="https://github.com/OpenRefine/OpenRefine/releases/download/3.2/openrefine-linux-3.2.tar.gz"
-client_URL="https://github.com/opencultureconsulting/openrefine-client/releases/download/v0.3.4/openrefine-client_0-3-4_linux-64bit"
+client_URL="https://github.com/opencultureconsulting/openrefine-client/releases/download/v0.3.9/openrefine-client_0-3-9_linux"
 
 # check system requirements
 JAVA="$(which java 2> /dev/null)"
@@ -34,7 +34,7 @@ if [ ! -d "openrefine-client" ]; then
     echo "Download OpenRefine client..."
     mkdir -p openrefine-client
     wget -q -P openrefine-client $wget_opt $client_URL
-    chmod +x openrefine-client/openrefine-client_0-3-4_linux-64bit
+    chmod +x openrefine-client/openrefine-client_0-3-9_linux
     echo ""
 fi
 
@@ -259,7 +259,7 @@ if [ -n "$inputfiles" ]; then
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
         # run client with input command
-        openrefine-client/openrefine-client_0-3-4_linux-64bit -P ${port} -c ${inputdir}/${inputfile} $inputformat "${inputoptions[@]}"
+        openrefine-client/openrefine-client_0-3-9_linux -P ${port} -c ${inputdir}/${inputfile} $inputformat "${inputoptions[@]}"
         # show allocated system resources
         ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
         memoryload+=($(ps --no-headers -o rss -p ${pid}))
@@ -290,7 +290,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
     
     # get project ids
     echo "get project ids..."
-    openrefine-client/openrefine-client_0-3-4_linux-64bit -P ${port} -l > "${outputdir}/projects.tmp"
+    openrefine-client/openrefine-client_0-3-9_linux -P ${port} -l > "${outputdir}/projects.tmp"
     projectids=($(cut -c 2-14 "${outputdir}/projects.tmp"))
     projectnames=($(cut -c 17- "${outputdir}/projects.tmp"))
     cat "${outputdir}/projects.tmp" && rm "${outputdir:?}/projects.tmp"
@@ -327,7 +327,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             for jsonfile in "${jsonfiles[@]}" ; do
                 echo "transform ${jsonfile}..."
                 # run client with apply command
-                openrefine-client/openrefine-client_0-3-4_linux-64bit -P ${port} -f ${configdir}/${jsonfile} ${projectids[i]}
+                openrefine-client/openrefine-client_0-3-9_linux -P ${port} -f ${configdir}/${jsonfile} ${projectids[i]}
                 # allocated system resources
                 ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
                 memoryload+=($(ps --no-headers -o rss -p ${pid}))
@@ -359,7 +359,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             filename=${projectnames[i]%.*}
             echo "export to file ${filename}.${exportformat}..."
             # run client with export command
-            openrefine-client/openrefine-client_0-3-4_linux-64bit -P ${port} -E --output="${outputdir}/${filename}.${exportformat}" "${templating[@]}" ${projectids[i]}
+            openrefine-client/openrefine-client_0-3-9_linux -P ${port} -E --output="${outputdir}/${filename}.${exportformat}" "${templating[@]}" ${projectids[i]}
             # show allocated system resources
             ps -o start,etime,%mem,%cpu,rss -p ${pid} --sort=start
             memoryload+=($(ps --no-headers -o rss -p ${pid}))

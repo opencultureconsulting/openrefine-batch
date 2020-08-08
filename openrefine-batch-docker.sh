@@ -229,7 +229,7 @@ echo "starting time: $(date --date=@${checkpointdate[$((checkpoints + 1))]})"
 echo ""
 ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
 # wait until server is available
-until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.9 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
 # show server logs
 ${docker[*]} attach ${uuid} &
 echo ""
@@ -246,7 +246,7 @@ if [ -n "$inputfiles" ]; then
     for inputfile in "${inputfiles[@]}" ; do
         echo "import ${inputfile}..."
         # run client with input command
-        ${docker[*]} run --rm --link ${uuid} -v ${inputdir}:/data:z felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -c $inputfile $inputformat ${inputoptions[@]}
+        ${docker[*]} run --rm --link ${uuid} -v ${inputdir}:/data:z felixlohmeier/openrefine-client:v0.3.9 -H ${uuid} -c $inputfile $inputformat ${inputoptions[@]}
         # show allocated system resources
         ps -o start,etime,%mem,%cpu,rss -C java --sort=start
         memoryload+=($(ps --no-headers -o rss -C java))
@@ -257,7 +257,7 @@ if [ -n "$inputfiles" ]; then
             ${docker[*]} stop -t=5000 ${uuid}
             ${docker[*]} rm ${uuid}
             ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-            until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+            until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.9 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
             ${docker[*]} attach ${uuid} &
             echo ""
         fi
@@ -276,7 +276,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
     
     # get project ids
     echo "get project ids..."
-    ${docker[*]} run --rm --link ${uuid} felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -l > "${outputdir}/projects.tmp"
+    ${docker[*]} run --rm --link ${uuid} felixlohmeier/openrefine-client:v0.3.9 -H ${uuid} -l > "${outputdir}/projects.tmp"
     projectids=($(cut -c 2-14 "${outputdir}/projects.tmp"))
     projectnames=($(cut -c 17- "${outputdir}/projects.tmp"))
     cat "${outputdir}/projects.tmp" && rm "${outputdir:?}/projects.tmp"
@@ -292,7 +292,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
         ${docker[*]} stop -t=5000 ${uuid}
         ${docker[*]} rm ${uuid}
         ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-        until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+        until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.9 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
         ${docker[*]} attach ${uuid} &
         echo ""
     fi
@@ -312,7 +312,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             for jsonfile in "${jsonfiles[@]}" ; do
                 echo "transform ${jsonfile}..."
                 # run client with apply command
-                ${docker[*]} run --rm --link ${uuid} -v ${configdir}:/data:z felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -f ${jsonfile} ${projectids[i]}
+                ${docker[*]} run --rm --link ${uuid} -v ${configdir}:/data:z felixlohmeier/openrefine-client:v0.3.9 -H ${uuid} -f ${jsonfile} ${projectids[i]}
                 # allocated system resources
                 ps -o start,etime,%mem,%cpu,rss -C java --sort=start
 	        memoryload+=($(ps --no-headers -o rss -C java))
@@ -323,7 +323,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
                   ${docker[*]} stop -t=5000 ${uuid}
                   ${docker[*]} rm ${uuid}
                   ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-                  until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+                  until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.9 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
                   ${docker[*]} attach ${uuid} &
                 fi
                 echo ""
@@ -343,7 +343,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
             filename=${projectnames[i]%.*}
             echo "export to file ${filename}.${exportformat}..."
             # run client with export command
-            ${docker[*]} run --rm --link ${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine-client:v0.3.4 -H ${uuid} -E --output="${filename}.${exportformat}" "${templating[@]}" ${projectids[i]}
+            ${docker[*]} run --rm --link ${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine-client:v0.3.9 -H ${uuid} -E --output="${filename}.${exportformat}" "${templating[@]}" ${projectids[i]}
             # show allocated system resources
             ps -o start,etime,%mem,%cpu,rss -C java --sort=start
             memoryload+=($(ps --no-headers -o rss -C java))
@@ -356,7 +356,7 @@ if [ -n "$jsonfiles" ] || [ "$export" = "true" ]; then
               ${docker[*]} stop -t=5000 ${uuid}
               ${docker[*]} rm ${uuid}
               ${docker[*]} run -d --name=${uuid} -v ${outputdir}:/data:z felixlohmeier/openrefine:${version} -i 0.0.0.0 -m ${ram} -d /data
-              until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.4 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
+              until ${docker[*]} run --rm --link ${uuid} --entrypoint /usr/bin/curl felixlohmeier/openrefine-client:v0.3.9 --silent -N http://${uuid}:3333 | cat | grep -q -o "OpenRefine" ; do sleep 1; done
               ${docker[*]} attach ${uuid} &
         fi
         echo ""        
