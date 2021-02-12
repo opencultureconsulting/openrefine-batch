@@ -1,6 +1,6 @@
 ## OpenRefine batch processing (openrefine-batch.sh)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/66bf001c38194f5bb722f65f5e15f0ec)](https://www.codacy.com/app/mail_74/openrefine-batch?utm_source=github.com&utm_medium=referral&utm_content=opencultureconsulting/openrefine-batch&utm_campaign=badger)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ad8a97e42e634bbe87203ea48efb436e)](https://www.codacy.com/gh/opencultureconsulting/openrefine-batch/dashboard)
 
 Shell script to run OpenRefine in batch mode (import, transform, export). This bash script automatically...
 
