@@ -1,6 +1,6 @@
 ## OpenRefine batch processing (openrefine-batch.sh)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ad8a97e42e634bbe87203ea48efb436e)](https://www.codacy.com/gh/opencultureconsulting/openrefine-batch/dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ad8a97e42e634bbe87203ea48efb436e)](https://www.codacy.com/gh/opencultureconsulting/openrefine-batch/dashboard) [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/opencultureconsulting/openrefine-batch/master?urlpath=lab/tree/demo.ipynb)
 
 Shell script to run OpenRefine in batch mode (import, transform, export). This bash script automatically...
 
@@ -16,6 +16,14 @@ If you prefer a containerized approach, see a [variation of this script for Dock
 
 - **Step 1**: Do some experiments with your data (or parts of it) in the graphical user interface of OpenRefine. If you are fine with all transformation rules, [extract the json code](http://kb.refinepro.com/2012/06/google-refine-json-and-my-notepad-or.html) and save it as file (e.g. transform.json).
 - **Step 2**: Put your data and the json file(s) in two different directories and execute the script. The script will automatically import all data files in OpenRefine projects, apply the transformation rules in the json files to each project and export all projects to files in the format specified (default: TSV - tab-separated values).
+
+### Demo via binder
+
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/opencultureconsulting/openrefine-batch/master?urlpath=lab/tree/demo.ipynb)
+
+- free to use on-demand server with Jupyterlab and Bash Kernel
+- no registration needed, will start within a few minutes
+- [restricted](https://mybinder.readthedocs.io/en/latest/about/about.html#how-much-memory-am-i-given-when-using-binder) to 2 GB RAM and server will be deleted after 10 minutes of inactivity
 
 ### Install
 
