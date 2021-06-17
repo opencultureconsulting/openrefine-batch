@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# Install bash_kernel https://github.com/takluyver/bash_kernel
+python -m bash_kernel.install
