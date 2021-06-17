@@ -289,19 +289,6 @@ total run time: 00:00:45 (hh:mm:ss)
 highest memory load: 1153 MB
 ```
 
-### Performance gain with extended cross function
-
-The original cross function expects normalized data (one foreign key per cell in base column). If you have multiple key values in one cell you need to split them first in multiple rows before you apply cross (and join results afterwards). This can be quite "expensive" if you work with bigger datasets.
-
-There is a [fork available that extend the cross function](https://github.com/felixlohmeier/OpenRefine/wiki>) to support an integrated split and may provide a massive performance gain for this special use case.
-
-Here is a code snippet to install this fork together with openrefine-batch.sh in a blank directory:
-```
-wget https://github.com/felixlohmeier/openrefine-batch/raw/master/openrefine-batch.sh && chmod +x openrefine-batch.sh
-sed -i 's/.tar.gz/-with-pr1294.tar.gz/' openrefine-batch.sh
-./openrefine-batch.sh
-```
-
 ### Docker
 
 A variation of the shell script orchestrates a [docker container for OpenRefine](https://hub.docker.com/r/felixlohmeier/openrefine/) (server) and a [docker container for the python client](https://hub.docker.com/r/felixlohmeier/openrefine-client/) instead of native applications.
@@ -354,11 +341,6 @@ execute openrefine-batch-docker.sh
 -i guessCellValueTypes=true \
 -RX
 ```
-
-### Todo
-
-- [ ] howto for extracting input options from OpenRefine GUI with Firefox network monitor
-- [ ] provide more example data from other OpenRefine tutorials
 
 ### Licensing
 
