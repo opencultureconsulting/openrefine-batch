@@ -166,12 +166,12 @@ The script prints log messages from OpenRefine server and makes use of `ps` to s
 ```
 [felix@tux openrefine-batch]$ ./openrefine-batch.sh -a examples/powerhouse-museum/input/ -b examples/powerhouse-museum/config/ -c examples/powerhouse-museum/output/ -f tsv -i processQuotes=false -i guessCellValueTypes=true -RX
 Download OpenRefine...
-openrefine-linux-3.4.1.tar.gz                100%[============================================================================================>] 114,70M  8,49MB/s    in 20s     
+openrefine-linux-3.5.0.tar.gz                               100%[=========================================================================================================================================>] 125,73M  9,50MB/s    in 13s     
 Install OpenRefine in subdirectory openrefine...
-Total bytes read: 139970560 (134MiB, 86MiB/s)
+Total bytes read: 154163200 (148MiB, 87MiB/s)
 
 Download OpenRefine client...
-openrefine-client_0-3-10_linux               100%[============================================================================================>]   4,25M  2,61MB/s    in 1,6s    
+openrefine-client_0-3-10_linux                              100%[=========================================================================================================================================>]   4,25M  9,17MB/s    in 0,5s    
 
 Input directory:         /home/felix/git/openrefine-batch/examples/powerhouse-museum/input
 Input files:             phm-collection.tsv
@@ -192,101 +192,99 @@ restart after transform: false
 
 === 1. Launch OpenRefine ===
 
-starting time: Mo 4. Jan 16:56:28 CET 2021
+starting time: Di 9. Nov 22:37:25 CET 2021
 
 Using refine.ini for configuration
-openrefine/refine: line 810: [: 2048M: integer expression expected
-You have 15927M of free memory.
+You have 15913M of free memory.
 Your current configuration is set to use 2048M of memory.
 OpenRefine can run better when given more memory. Read our FAQ on how to allocate more memory here:
-https://github.com/OpenRefine/OpenRefine/wiki/FAQ:-Allocate-More-Memory
-/usr/bin/java -cp server/classes:server/target/lib/* -Drefine.headless=true -Xms2048M -Xmx2048M -Drefine.memory=2048M -Drefine.max_form_content_size=1048576 -Drefine.verbosity=info -Dpython.path=main/webapp/WEB-INF/lib/jython -Dpython.cachedir=/home/felix/.local/share/google/refine/cachedir -Drefine.data_dir=/home/felix/git/openrefine-batch/examples/powerhouse-museum/output -Drefine.webapp=main/webapp -Drefine.port=3333 -Drefine.host=127.0.0.1 -Drefine.autosave=1440 com.google.refine.Refine
+https://github.com/OpenRefine/OpenRefine/wiki/FAQ-Allocate-More-Memory
+/usr/bin/java -cp server/classes:server/target/lib/* -Drefine.headless=true -Xms2048M -Xmx2048M -Drefine.memory=2048M -Drefine.max_form_content_size=1048576 -Drefine.verbosity=info -Dpython.path=main/webapp/WEB-INF/lib/jython -Dpython.cachedir=/home/felix/.local/share/google/refine/cachedir -Drefine.data_dir=/home/felix/git/openrefine-batch/examples/powerhouse-museum/output -Drefine.webapp=main/webapp -Drefine.port=3333 -Drefine.interface=127.0.0.1 -Drefine.host=127.0.0.1 -Drefine.autosave=1440 com.google.refine.Refine
 Starting OpenRefine at 'http://127.0.0.1:3333/'
 
-16:56:28.993 [            refine_server] Starting Server bound to '127.0.0.1:3333' (0ms)
-16:56:28.994 [            refine_server] refine.memory size: 2048M JVM Max heap: 2058354688 (1ms)
-16:56:29.004 [            refine_server] Initializing context: '/' from '/home/felix/git/openrefine-batch/openrefine/webapp' (10ms)
+log4j:WARN No appenders could be found for logger (org.eclipse.jetty.util.log).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
 SLF4J: Class path contains multiple SLF4J bindings.
-SLF4J: Found binding in [jar:file:/home/felix/git/openrefine-batch/openrefine/server/target/lib/slf4j-log4j12-1.7.18.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-SLF4J: Found binding in [jar:file:/home/felix/git/openrefine-batch/openrefine/webapp/WEB-INF/lib/slf4j-log4j12-1.7.18.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/felix/git/openrefine-batch/openrefine/webapp/WEB-INF/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/felix/git/openrefine-batch/openrefine/server/target/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
 SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
-16:56:29.690 [                   refine] Starting OpenRefine 3.4.1 [437dc4d]... (686ms)
-16:56:29.690 [                   refine] initializing FileProjectManager with dir (0ms)
-16:56:29.690 [                   refine] /home/felix/git/openrefine-batch/examples/powerhouse-museum/output (0ms)
-16:56:29.696 [       FileProjectManager] Failed to load workspace from any attempted alternatives. (6ms)
-16:56:35.245 [                   refine] Running in headless mode (5549ms)
+22:37:28.211 [                   refine] Starting OpenRefine 3.5.0 [d4209a2]... (0ms)
+22:37:28.213 [                   refine] initializing FileProjectManager with dir (2ms)
+22:37:28.213 [                   refine] /home/felix/git/openrefine-batch/examples/powerhouse-museum/output (0ms)
+22:37:28.223 [       FileProjectManager] Failed to load workspace from any attempted alternatives. (10ms)
 
 === 2. Import all files ===
 
-starting time: Mo 4. Jan 16:56:36 CET 2021
+starting time: Di 9. Nov 22:37:33 CET 2021
 
 import phm-collection.tsv...
-16:56:36.199 [                   refine] GET /command/core/get-csrf-token (954ms)
-16:56:36.339 [                   refine] POST /command/core/create-project-from-upload (140ms)
-16:56:45.999 [                   refine] GET /command/core/get-models (9660ms)
-16:56:46.105 [                   refine] POST /command/core/get-rows (106ms)
-id: 1841400347972
+22:37:33.804 [                   refine] GET /command/core/get-csrf-token (5581ms)
+22:37:33.872 [                   refine] POST /command/core/create-project-from-upload (68ms)
+22:37:44.653 [                   refine] GET /command/core/get-models (10781ms)
+22:37:44.790 [                   refine] POST /command/core/get-rows (137ms)
+id: 2252508879578
 rows: 75814
  STARTED     ELAPSED %MEM %CPU   RSS
-16:56:27       00:18  6.1  194 997020
+22:37:25       00:19 10.2  202 1670620
 
 === 3. Prepare transform & export ===
 
-starting time: Mo 4. Jan 16:56:46 CET 2021
+starting time: Di 9. Nov 22:37:44 CET 2021
 
 get project ids...
-16:56:46.383 [                   refine] GET /command/core/get-csrf-token (278ms)
-16:56:46.387 [                   refine] GET /command/core/get-all-project-metadata (4ms)
- 1841400347972: phm-collection
+22:37:45.112 [                   refine] GET /command/core/get-csrf-token (322ms)
+22:37:45.115 [                   refine] GET /command/core/get-all-project-metadata (3ms)
+ 2252508879578: phm-collection
 
 === 4. Transform phm-collection ===
 
-starting time: Mo 4. Jan 16:56:46 CET 2021
+starting time: Di 9. Nov 22:37:45 CET 2021
 
 transform phm-transform.json...
-16:56:46.594 [                   refine] GET /command/core/get-csrf-token (207ms)
-16:56:46.597 [                   refine] GET /command/core/get-models (3ms)
-16:56:46.607 [                   refine] POST /command/core/apply-operations (10ms)
-File /home/felix/git/openrefine-batch/examples/powerhouse-museum/config/phm-transform.json has been successfully applied to project 1841400347972
+22:37:45.303 [                   refine] GET /command/core/get-csrf-token (188ms)
+22:37:45.308 [                   refine] GET /command/core/get-models (5ms)
+22:37:45.324 [                   refine] POST /command/core/apply-operations (16ms)
+File /home/felix/git/openrefine-batch/examples/powerhouse-museum/config/phm-transform.json has been successfully applied to project 2252508879578
  STARTED     ELAPSED %MEM %CPU   RSS
-16:56:27       00:34  6.2  162 1026072
+22:37:25       00:34 11.9  175 1940600
 
 
 === 5. Export phm-collection ===
 
-starting time: Mo 4. Jan 16:57:02 CET 2021
+starting time: Di 9. Nov 22:37:59 CET 2021
 
 export to file phm-collection.tsv...
-16:57:02.322 [                   refine] GET /command/core/get-csrf-token (15715ms)
-16:57:02.325 [                   refine] GET /command/core/get-models (3ms)
-16:57:02.328 [                   refine] GET /command/core/get-all-project-metadata (3ms)
-16:57:02.331 [                   refine] POST /command/core/export-rows/phm-collection.tsv (3ms)
+22:37:59.944 [                   refine] GET /command/core/get-csrf-token (14620ms)
+22:37:59.947 [                   refine] GET /command/core/get-models (3ms)
+22:37:59.951 [                   refine] GET /command/core/get-all-project-metadata (4ms)
+22:37:59.954 [                   refine] POST /command/core/export-rows/phm-collection.tsv (3ms)
 Export to file /home/felix/git/openrefine-batch/examples/powerhouse-museum/output/phm-collection.tsv complete
  STARTED     ELAPSED %MEM %CPU   RSS
-16:56:27       00:37  7.2  169 1181160
+22:37:25       00:38 12.4  181 2021388
 
 
 output (number of lines / size in bytes):
    75728 59431272 /home/felix/git/openrefine-batch/examples/powerhouse-museum/output/phm-collection.tsv
 
 cleanup...
-16:57:08.684 [           ProjectManager] Saving all modified projects ... (6353ms)
-16:57:12.069 [        project_utilities] Saved project '1841400347972' (3385ms)
+22:38:06.850 [           ProjectManager] Saving all modified projects ... (6896ms)
+22:38:10.014 [        project_utilities] Saved project '2252508879578' (3164ms)
 
 === Statistics ===
 
 starting time and run time of each step:
-                      Start process Mo 4. Jan 16:56:28 CET 2021 (00:00:00)
-                  Launch OpenRefine Mo 4. Jan 16:56:28 CET 2021 (00:00:08)
-                   Import all files Mo 4. Jan 16:56:36 CET 2021 (00:00:10)
-         Prepare transform & export Mo 4. Jan 16:56:46 CET 2021 (00:00:00)
-           Transform phm-collection Mo 4. Jan 16:56:46 CET 2021 (00:00:16)
-              Export phm-collection Mo 4. Jan 16:57:02 CET 2021 (00:00:11)
-                        End process Mo 4. Jan 16:57:13 CET 2021 (00:00:00)
+                      Start process Di 9. Nov 22:37:25 CET 2021 (00:00:00)
+                  Launch OpenRefine Di 9. Nov 22:37:25 CET 2021 (00:00:08)
+                   Import all files Di 9. Nov 22:37:33 CET 2021 (00:00:11)
+         Prepare transform & export Di 9. Nov 22:37:44 CET 2021 (00:00:01)
+           Transform phm-collection Di 9. Nov 22:37:45 CET 2021 (00:00:14)
+              Export phm-collection Di 9. Nov 22:37:59 CET 2021 (00:00:11)
+                        End process Di 9. Nov 22:38:10 CET 2021 (00:00:00)
 
 total run time: 00:00:45 (hh:mm:ss)
-highest memory load: 1153 MB
+highest memory load: 1974 MB
 ```
 
 ### Docker

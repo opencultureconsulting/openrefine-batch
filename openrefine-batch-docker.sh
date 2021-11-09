@@ -1,5 +1,5 @@
 #!/bin/bash
-# openrefine-batch-docker.sh, Felix Lohmeier, v1.15, 2021-01-04
+# openrefine-batch-docker.sh, Felix Lohmeier, v1.16, 2021-11-09
 # https://github.com/felixlohmeier/openrefine-batch
 
 # check system requirements
@@ -40,7 +40,7 @@ Usage: ./openrefine-batch-docker.sh [-a INPUTDIR] [-b TRANSFORMDIR] [-c OUTPUTDI
     -i INPUTOPTIONS  several options provided by openrefine-client, see below...
     -m RAM           maximum RAM for OpenRefine java heap space (default: 2048M)
     -t TEMPLATING    several options for templating export, see below...
-    -v VERSION       OpenRefine version (3.4.1, 3.4, 3.3, 3.2, 3.1, 3.0, 2.8, 2.7, ...; default: 3.4.1)
+    -v VERSION       OpenRefine version (3.5.0, 3.4.1, 3.4, 3.3, 3.2, 3.1, 3.0, 2.8, 2.7, ...; default: 3.5.0)
     -E               do NOT export files
     -R               do NOT restart OpenRefine after each transformation (e.g. config file)
     -X               do NOT restart OpenRefine after each project (e.g. input file)
@@ -108,7 +108,7 @@ EOF
 
 # defaults
 ram="2048M"
-version="3.4.1"
+version="3.5.0"
 restartfile="true"
 restarttransform="true"
 export="true"
