@@ -1,2 +1,2 @@
-jupyter-server-proxy==3.2.1
+jupyter-server-proxy==3.2.3
 bash_kernel==0.7.2
